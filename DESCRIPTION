@@ -1,0 +1,22 @@
+Package: sgt-vis
+Type: Package
+Title: Visualize population genomics analyses results
+Version: 0.1.0
+Author: Romain Feron
+Maintainer: Romain Feron <romain.feron.91@gmail.com>
+Author@R: person("Romain", "Feron", email = "romain.feron.91@gmail.com",
+  role = c("aut", "cre"))
+Description: Collection of low-level function to generate genomics plots and high-level functions to visualize results from SGT tools.
+License: file LICENSE
+Encoding: UTF-8
+LazyData: false
+Imports:
+    circlize (>= 0.4.3),
+    cowplot (>= 0.9.2),
+    ggplot2 (>= 2.2.1),
+    gtools (>= 3.5.0),
+    readr (>= 1.1.1),
+    reshape2 (>= 1.4.3)
+URL: https://github.com/RomainFeron/sgt-vis
+BugReports: https://github.com/RomainFeron/sgt-vis/issues
+RoxygenNote: 7.0.2

@@ -1,4 +1,4 @@
-Package: sgtvis
+Package: sgtr
 Type: Package
 Title: Visualize population genomics analyses results
 Version: 0.1.0
@@ -6,7 +6,7 @@ Author: Romain Feron
 Maintainer: Romain Feron <romain.feron.91@gmail.com>
 Author@R: person("Romain", "Feron", email = "romain.feron.91@gmail.com",
   role = c("aut", "cre"))
-Description: Collection of low-level function to generate genomics plots and high-level functions to visualize results from SGT tools.
+Description: Collection of low-level function to generate genomics plots and high-level functions to visualize results from the Sex Genomics Toolkit.
 License: file LICENSE
 Encoding: UTF-8
 LazyData: false
@@ -17,6 +17,6 @@ Imports:
     gtools (>= 3.5.0),
     readr (>= 1.1.1),
     reshape2 (>= 1.4.3)
-URL: https://github.com/RomainFeron/sgt-vis
-BugReports: https://github.com/RomainFeron/sgt-vis/issues
+URL: https://github.com/RomainFeron/sgtr
+BugReports: https://github.com/RomainFeron/sgtr/issues
 RoxygenNote: 7.0.2

@@ -1,4 +1,4 @@
-Package: sgt-vis
+Package: sgtvis
 Type: Package
 Title: Visualize population genomics analyses results
 Version: 0.1.0

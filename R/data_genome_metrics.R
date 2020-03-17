@@ -84,16 +84,17 @@ load_genome_metrics <- function(input_file_path,
 
         # Separate data between chromosomes and unplaced contigs
         chromosome_data <- subset(data, data$Contig %in% names(chromosomes))
-        chromosome_data$Contig_plot <- chromosomes[chromosome$Contig_plot]
+        chromosome_data$Contig_plot <- chromosomes[chromosome_data$Contig_plot]
         unplaced_data <- subset(data, !(data$Contig %in% names(chromosomes)))
 
         # Set chromosome color index to 2 for plotting
         chromosome_data$Color <- rep(2, nrow(chromosome_data))
 
         # Create a sorted data frame of contig lengths
-        contig_lengths <- data.frame(unique(chromosome_data[, c(1, 3)]))
-        contig_order <- gtools::mixedorder(contig_lengths$Contig)
-        contig_lengths <- contig_lengths[order(contig_order),]
+        contig_lengths <- get_contig_lengths_from_data(data,
+                                                       chromosomes,
+                                                       sortby = "Contig")
+
         contig_lengths$Contig <- chromosomes[contig_lengths$Contig]
 
     } else {
@@ -134,7 +135,7 @@ load_genome_metrics <- function(input_file_path,
     }
 
     # Create final data frame
-    if (!is.null(chromosome_data) & nrow(unplaced) > 0) {
+    if (!is.null(chromosome_data) & nrow(unplaced_data) > 0) {
 
         data <- rbind(chromosome_data, unplaced_data)
 
@@ -147,11 +148,11 @@ load_genome_metrics <- function(input_file_path,
         # Entire dataset is in chromosomes
         data <- chromosome_data
 
-    } else if (nrow(unplaced) > 0) {
+    } else if (nrow(unplaced_data) > 0) {
 
         # Entire dataset is unplaced
         data <- unplaced_data
-        contig_lengths <- data.frame(Contig  =c(unplaced_label),
+        contig_lengths <- data.frame(Contig = c(unplaced_label),
                                      Length = c(total_unplaced_length))
 
     } else {
@@ -190,9 +191,7 @@ detect_chromosomes <- function(data) {
     valid_chromosome_start <- c("CHR", "LG", "NC")
 
     # Order contigs by length in a data frame
-    contig_lengths <- data.frame(unique(data[, c(1, 3)]))
-    contig_lengths <- contig_lengths[order(contig_lengths[,3],
-                                           decreasing = TRUE),]
+    contig_lengths <- get_contig_lengths_from_data(data)
 
     # Identify chromosomes based on name:
     # start with CHR, LG, or NC (case-unsensitive)
@@ -218,5 +217,60 @@ detect_chromosomes <- function(data) {
 
     # Create the named vector of chromosome names with detected chromosomes
     return(setNames(detected_chr$Contig, detected_chr$Contig))
+
+}
+
+
+
+
+#' @title Get contig lengths from genome metrics data
+#'
+#' @description Extract contig identifier and contig length columns from a
+#' genome metrics data frame and return a sorted data frame.
+#'
+#' @param data Genome metrics data frame: data frame with columns
+#' Contig | Position | Length | <Metric1> | <Metric2> ...
+#'
+#' @param chromosomes Named vector of chromosome names from
+#' \code{\link{load_chromosome_names}}. If not NULL, only returns lengths for
+#' chromosomes (default: NULL)
+#'
+#' @param sortby Column to sort the data frame by, either "Length" or "Contig"
+#' (default: "Length")
+#'
+#' @return A data frame with columns <Contig ID> | <Contig Length> sorted by
+#' contig length
+#'
+#' @examples
+#' contig_lengths <- get_contig_lengths_from_data(data)
+
+get_contig_lengths_from_data <- function(data, chromosomes = NULL, sortby = "Length") {
+
+    contig_lengths <- data.frame(unique(data[, c("Contig", "Length")]))
+
+    if (sortby == "Length") {
+
+        contig_lengths <- contig_lengths[order(contig_lengths$Length,
+                                               decreasing = TRUE),]
+
+    } else if (sortby == "Contig") {
+
+        contig_order <- gtools::mixedorder(contig_lengths$Contig)
+        contig_lengths <- contig_lengths[contig_order,]
+
+    } else {
+
+        stop("Invalid value for parameter \"sortby\" in
+             get_contig_lengths_from_data
+             (accepted values: \"Length\", \"Contig\"")
+
+    }
+
+    if (!is.null(chromosomes)) {
+        contig_lengths <- subset(contig_lengths,
+                                 contig_lengths$Contig %in% names(chromosomes))
+    }
+
+    return(contig_lengths)
 
 }

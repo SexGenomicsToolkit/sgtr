@@ -45,7 +45,7 @@ load_chromosome_names <- function(input_file_path) {
 #' \code{\link{load_chromosome_names}} (default: NULL)
 #'
 #' @param detect_chromosomes If TRUE, will consider contigs starting with
-#' "chromosome", "CHR", or "NC" as chromosomes if no chromosomes were specified
+#' "LG", "CHR", or "NC" as chromosomes if no chromosomes were specified
 #' (default: TRUE)
 #'
 #' @param unplaced_label Label for unplaced contigs superscaffold

@@ -2,7 +2,7 @@
 #'
 #' @description Loads chromosome names from a tabulated file
 #'
-#' @param input_file_path Path to the chromosome names file (i.e. tab-separated
+#' @param input_file Path to the chromosome names file (i.e. tab-separated
 #' file without header and with columns <Contig ID> | <Chromosome name>).
 #'
 #' @return A named vector with contig identifiers as names and chromosome names
@@ -12,11 +12,11 @@
 #' chromosomes <- load_chromosome_names("chromosomes_names.tsv")
 #'
 
-load_chromosome_names <- function(input_file_path) {
+load_chromosome_names <- function(input_file) {
 
-    if (is.null(input_file_path)) return(NULL)
+    if (is.null(input_file)) return(NULL)
 
-    raw_data <- suppressMessages(readr::read_delim(input_file_path, "\t",
+    raw_data <- suppressMessages(readr::read_delim(input_file, "\t",
                                                    escape_double = FALSE,
                                                    col_names = FALSE,
                                                    trim_ws = TRUE))
@@ -39,7 +39,7 @@ load_chromosome_names <- function(input_file_path) {
 #' length of the contig, <MetricN> = value of metric N (e.g. Fst) at the
 #' corresponding position on the corresponding contig.
 #'
-#' @param input_file_path Path to a genome metrics file (format described above)
+#' @param input_file Path to a genome metrics file (format described above)
 #'
 #' @param chromosomes Named vector of chromosome names from
 #' \code{\link{load_chromosome_names}} (default: NULL)
@@ -59,12 +59,12 @@ load_chromosome_names <- function(input_file_path) {
 #' genome_data <- load_genome_metrics("psass_window.tsv",
 #'                                    chromosomes = chromosomes)
 
-load_genome_metrics <- function(input_file_path,
+load_genome_metrics <- function(input_file,
                                 chromosomes = NULL,
                                 detect_chromosomes = TRUE,
                                 unplaced_label = "Unplaced") {
 
-    data <- suppressMessages(readr::read_delim(input_file_path,
+    data <- suppressMessages(readr::read_delim(input_file,
                                                "\t",
                                                escape_double = FALSE,
                                                trim_ws = TRUE))
@@ -157,7 +157,7 @@ load_genome_metrics <- function(input_file_path,
 
     } else {
 
-        stop(paste0("Error loading dataset <", input_file_path, ">",
+        stop(paste0("Error loading dataset <", input_file, ">",
                     " (impossible conditions)"))
 
     }
@@ -244,7 +244,8 @@ detect_chromosomes <- function(data) {
 #' @examples
 #' contig_lengths <- get_contig_lengths_from_data(data)
 
-get_contig_lengths_from_data <- function(data, chromosomes = NULL, sortby = "Length") {
+get_contig_lengths_from_data <- function(data, chromosomes = NULL,
+                                         sortby = "Length") {
 
     contig_lengths <- data.frame(unique(data[, c("Contig", "Length")]))
 

@@ -1,5 +1,5 @@
 library(sgtr)
-setwd("/home/romain/work/code/PSASS-vis/test/")
+setwd("/home/romain/work/code/sgtr/test/")
 
 ###################################
 ########## DATA LOADING ###########
@@ -33,10 +33,33 @@ draw_circos(psass_window_chr$data, psass_window_chr$lengths,
                           circos_track(c("Abs_depth_females", "Abs_depth_males"), label = "Depth", color = c("firebrick2", "dodgerblue3"))),
             output.file = "circos.png")
 
+
+# Plot circos
+plot_circos("psass_window.tsv",
+            tracks = list(track("Fst", label = expression("F"["ST"])),
+                          track(c("Snps_females", "Snps_males"), label = "SNPs", colors = c("firebrick2", "dodgerblue3"))),
+            chromosomes_file = "chromosomes.tsv",
+            output_file = "circos2.png")
+
+# Plot circos multiple tracks
+plot_circos("psass_window.tsv",
+            tracks = list(track("Fst", label = expression(bold("F"["ST"])),
+                                major_lines_y = TRUE),
+                          track("Snps_males", label = "M. SNPs", colors = c("dodgerblue3"),
+                                major_lines_x = TRUE),
+                          track("Snps_females", label = "F. SNPs", colors = c("firebrick2"),
+                                major_lines_y = FALSE)),
+            chromosomes_file = "chromosomes.tsv",
+            output_file = "circos3.png",
+            highlight = 'Chr24',
+            highlight_bg_color = "thistle1",
+            default_bg_colors = "white")
+
+
 # Plot circos
 plot_circos("psass_window.tsv",
             tracks = list(circos_track("Fst", label = expression("F"["ST"])),
-                          circos_track(c("Snps_females", "Snps_males"), label = "SNPs", color = c("firebrick2", "dodgerblue3")),
+                          circos_track(c("Snps_females", "Snps_males"), label = "SNPs", colors = c("firebrick2", "dodgerblue3")),
                           circos_track(c("Abs_depth_females", "Abs_depth_males"), label = "Depth", color = c("firebrick2", "dodgerblue3"))),
             chromosomes.file.path = "chromosomes.tsv",
             output.file = "circos2.png")

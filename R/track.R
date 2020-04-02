@@ -66,7 +66,7 @@ track <- function(metrics, label = NA, colors = NA, bg_colors = NA,
     n_metrics <- length(metrics)
 
     # Assign label if necessary
-    if (is.na(label)) {
+    if (is.na(list(label))) {
 
         if (n_metrics == 1) {
 
@@ -131,7 +131,7 @@ configure_track <- function(track, defaults, data) {
     track <- assign_defaults(track, defaults)
 
     # Create input data for track
-    track <- create_track_data(data, track)
+    track <- create_track_data(track, data)
 
     return(track)
 
@@ -170,7 +170,9 @@ assign_defaults <- function(track, defaults) {
         current_value <- c(track[[property]])[1]
 
         # Assign a value to properties not defined in track creation (NA value)
-        if (is.na(current_value) & property %in% default_properties) {
+        # Use 'list' because checking if an expression is NA triggers a warning,
+        # which does not happen when the expression is part of a list
+        if (is.na(list(current_value)) & property %in% default_properties) {
 
             default_value <- defaults[[property]]
             track[[property]] <- assign_value(default_value, property,
@@ -192,11 +194,11 @@ assign_defaults <- function(track, defaults) {
 #'
 #' @description Create an input data frame for the track plotting functions
 #'
-#' @param data Genomic data (e.g. result of PSASS or RADSex loaded
-#' with the \code{\link{load_genome_input}} function).
-#'
 #' @param track Track object for the current plot, generated with the
 #' \code{\link{track}} function.
+#'
+#' @param data Genomic data (e.g. result of PSASS or RADSex loaded
+#' with the \code{\link{load_genome_input}} function).
 #'
 #' @return A data frame with columns:
 #' Contig | Position | Metric 1 | Metric 1 colors |  Metric N | Metric N colors
@@ -206,10 +208,10 @@ assign_defaults <- function(track, defaults) {
 #' track <- track("Fst")
 #' track <- create_track_data(genomic_data, track)
 
-create_track_data <- function(data, track) {
+create_track_data <- function(track, data) {
 
     # Extract required columns and create color columns
-    track$data <- data$data[, c("Contig_plot", "Position_plot", track$metrics)]
+    track$data <- data[, c("Contig_plot", "Position_plot", track$metrics)]
 
     names(track$data) <- c("Contig", "Position", track$metrics)
 
@@ -262,14 +264,18 @@ assign_value <- function(value, property, n_metrics) {
                 "legend_position" = TRUE)
 
     # Assign multiple values when required
-    if (n_metrics > 1 & global[property] == FALSE & length(value) < n_metrics) {
+    if (global[property] == FALSE) {
 
-        value <- rep(value, n_metrics)
+        if (n_metrics > 1 & length(value) == 1) {
 
-    } else if (!(length(value) %in% c(1, n_metrics))) {
+            value <- rep(value, n_metrics)
 
-        stop(paste0("Incorrect value \"", value, "\" for property \"",
-                    property, "\" in track definition."))
+        } else if (length(value) != n_metrics) {
+
+            stop(paste0("Incorrect value \"", value, "\" for property \"",
+                        property, "\" in track definition."))
+
+        }
 
     }
 

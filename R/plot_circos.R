@@ -121,6 +121,7 @@ plot_circos <- function(input_file, tracks,
                 data$lengths,
                 tracks,
                 highlight = highlight,
+                highlight_bg_color = highlight_bg_color,
                 output_file = output_file,
                 width = width,
                 height = height,
@@ -347,11 +348,14 @@ draw_circos_track <- function(track, top_track = FALSE,
     # Get data from track
     data <- track$data
 
-    # Assign values for y-axis parameters
+    # Assign values for y-axis limits
     if (is.na(track$ylim)) {
 
-        track$ylim = c(0.975 * min(data[, 4]) - 0.01,
-                       1.025 * max(data[, 4]) + 0.01)
+        ymin <- min(data[, 4])
+        if (ymin < 0) { ymin <- 1.025 * ymin } else { ymin <- 0.976 * ymin }
+        ymax <- max(data[, 4])
+        if (ymax < 0) { ymax <- 0.976 * ymax } else { ymax <- 1.025 * ymax }
+        track$ylim <- c(ymin, ymax)
 
     }
 
@@ -375,21 +379,25 @@ draw_circos_track <- function(track, top_track = FALSE,
                                xmax <- circlize::CELL_META$xlim[2]
                                xplot <- circlize::CELL_META$xplot
 
+                               major_x <- c(0, xmax / 3, 2 * xmax / 3, xmax)
+                               major_y <- c(ylim[1],
+                                            (ylim[2] - ylim[1]) / 2 + ylim[1],
+                                            ylim[2])
+
                                # Add top axis and titles to sectors
                                if (top_track) {
 
-                                   majors <- c(0, xmax / 3, 2 * xmax / 3, xmax)
-                                   majors_mb <- convert_to_mb(majors)
+                                   major_x_mb <- convert_to_mb(major_x)
 
                                    # Create x axis on top of sectors
                                    circlize::circos.axis(h = "top",
                                                          # Label every 1/3 of the axis
-                                                         major.at = majors,
+                                                         major.at = major_x,
                                                          labels.cex = 1.2,
                                                          labels.facing = "outside",
                                                          direction="outside",
                                                          # Conversion to Mb
-                                                         labels = majors_mb,
+                                                         labels = major_x_mb,
                                                          minor.ticks = 4,
                                                          labels.pos.adjust = TRUE)
 
@@ -412,22 +420,30 @@ draw_circos_track <- function(track, top_track = FALSE,
                                # Add Y axis on the first sector only
                                if (sector_index == first_sector) {
 
-                                   majors <- c(ylim[1],
-                                               (ylim[2] - ylim[1]) / 2 + ylim[1],
-                                               ylim[2])
+                                   major_y_lab <- major_y
+                                   # Round y-axis labels if values are big
+                                   # enough
+                                   if (major_y[3] - major_y[1] >= 10) {
 
-                                   major_labels <- round(majors, 0)
+                                       major_y_lab <- round(major_y, 0)
+
+                                   } else {
+
+                                       major_y_lab <- round(major_y, 2)
+
+                                   }
 
                                    # Create y axis
                                    circlize::circos.yaxis(side = "left",
-                                                          at = majors,  # 3 labels
-                                                          sector.index = first_sector,
+                                                          at = major_y,  # 3 labels
                                                           labels.cex = 1.2,
                                                           labels.niceFacing = FALSE,
-                                                          labels = major_labels)
+                                                          labels = major_y_lab)
 
-                                   #Add y axis labels
-                                   label_offset <- - 7.5 * (xmax - xmin) / (xplot[1] - xplot[2])  # Axis title will be plotted 7.5° on the left of the axis
+                                   # Add y axis labels
+                                   # Axis title will be plotted 7.5% on the
+                                   # left of the axis
+                                   label_offset <- - 7.5 * (xmax - xmin) / (xplot[1] - xplot[2])
                                    circlize::circos.text(label_offset,
                                                          0.5 * (ymax - ymin) + ymin,
                                                          ylabel,
@@ -435,6 +451,31 @@ draw_circos_track <- function(track, top_track = FALSE,
                                                          facing = "clockwise",
                                                          cex = 1.3,
                                                          font = 2)
+                               }
+
+                               if (track$major_lines_x == TRUE) {
+
+                                   n_major <- length(major_x)
+
+                                   circlize::circos.segments(major_x,
+                                                             rep(ymin, n_major),
+                                                             major_x,
+                                                             rep(ymax, n_major),
+                                                             col = "grey50",
+                                                             lty = 1)
+
+                               }
+
+                               if (track$major_lines_y == TRUE) {
+
+                                   n_major <- length(major_y)
+                                   circlize::circos.segments(rep(xmin, n_major),
+                                                             major_y,
+                                                             rep(xmax, n_major),
+                                                             major_y,
+                                                             col = "grey50",
+                                                             lty = 1)
+
                                }
 
                            })
@@ -472,8 +513,7 @@ check_highlight_sectors <- function(data, contig_lengths, highlight) {
     if (is.na(highlight)) { return(c()) }
 
     # Contig correspondence table
-    contigs <- stats::setNames(unique(data$Contig_plot),
-                               unique(data$Contig))
+    contigs <- unique(data$Contig)
 
     for (i in 1:length(highlight)) {
 
@@ -481,9 +521,10 @@ check_highlight_sectors <- function(data, contig_lengths, highlight) {
         if (!(highlight[i] %in% names(contig_lengths))) {
 
             # Look for specified sector to highlight in original contig names
-            if (highlight[i] %in% names(contigs)) {
+            if (highlight[i] %in% contigs) {
 
-                highlight[i] <- contigs[highlight[i]]
+                tmp <- data$Contig_plot[which(data$Contig == highlight[i])]
+                highlight[i] <- unique(tmp)[1]
 
             } else {
 
@@ -500,11 +541,25 @@ check_highlight_sectors <- function(data, contig_lengths, highlight) {
 
 
 
-
+#' @title Open output device
+#'
+#' @description Open an R output device based on an output file extension.
+#'
+#' @param output_file Path to the output file.
+#'
+#' @param width Plot width in pixel
+#'
+#' @param height Plot height in pixel
+#'
+#' @param res Image resolution in ppi
+#'
+#' @return
+#'
+#' @examples
+#' open_output_device('circos.png', width = 1200, height = 1200, res = 120)
 
 open_output_device <- function(output_file, width, height, res) {
 
-    # Open output file if specified
     if (!is.na(output_file)) {
 
         extension <- strsplit(output_file, "\\.")[[1]]
@@ -516,6 +571,7 @@ open_output_device <- function(output_file, width, height, res) {
 
         } else {
 
+            # Get last element in file name split by "."
             extension <- extension[length(extension)]
 
             if (extension == "pdf") {
@@ -559,11 +615,26 @@ open_output_device <- function(output_file, width, height, res) {
 
 
 
-
+#' @title Configure sector background colors
+#'
+#' @description Configure background colors for all sectors in circos plot
+#'
+#' @param tracks Track data object generated with the \code{\link{track}}
+#' function.
+#'
+#' @param highlight Vector containing the names or identifiers of contigs or
+#' chromosomes to highlight in the circos plot.
+#'
+#' @param highlight_bg_color Background color for highlighted sectors.
+#'
+#' @return
+#'
+#' @examples
+#' open_output_device('circos.png', width = 1200, height = 1200, res = 120)
 
 configure_backgrounds <- function(track, highlight, highlight_bg_color) {
 
-    sectors <- unique(track$data$Contig_plot)
+    sectors <- unique(track$data$Contig)
     n_sectors <- length(sectors)
     track$bg_colors <- rep(track$bg_colors, n_sectors)[1:n_sectors]
     names(track$bg_colors) <- sectors

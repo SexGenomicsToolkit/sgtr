@@ -11,9 +11,9 @@
 #' corresponding position on the corresponding contig.
 #'
 #' @param tracks List of track data objects for each track to include in the
-#' plot. Track data objects for circos plots are generated with the
-#' \code{\link{track}} function. Tracks can represent one or mutiple
-#' metrics from the genome metrics input file.
+#' plot. Track data objects are generated with the \code{\link{track}},
+#' \code{\link{single_metric_track}}, or \code{\link{multi_metrics_track}}
+#' functions.
 #'
 #' @param chromosomes_file Path to the chromosome names file
 #' (i.e. tab-separated file without header and with columns
@@ -76,14 +76,12 @@
 #'
 #' @examples
 #' plot_circos("data/psass_window.tsv",
-#'             tracks = list(track("Fst",
-#'                                 label = expression("F"["ST"])),
-#'                           track(c("Snps_females", "Snps_males"),
-#'                                 label = "Pool-specific SNPs",
-#'                                 colors = c("firebrick2", "dodgerblue3")),
-#'                           track(c("Depth_ratio"),
-#'                                 label = "Depth ratio",
-#'                                 colors = "grey50")),
+#'             tracks = list(single_metric_track("Fst",
+#'                                               label = expression("F"["ST"])),
+#'                           multi_metrics_track(c("Snp_females", "Snp_males"),
+#'                                               label = "Pool-specific SNPs",
+#'                                               colors = c("firebrick2",
+#'                                                          "dodgerblue3")),
 #'             default_type = "ribbon",
 #'             output_file = "circos.png")
 
@@ -158,9 +156,9 @@ plot_circos <- function(input_file, tracks,
 #' \code{\link{load_genome_input}} function. Format: <Contig ID> | <Length>
 #'
 #' @param tracks List of track data objects for each track to include in the
-#' plot. Track data objects for circos plots are generated with the
-#' \code{\link{track}} function. Tracks can represent one or mutiple
-#' metrics from the genome metrics input file.
+#' plot. Track data objects are generated with the \code{\link{track}},
+#' \code{\link{single_metric_track}}, or \code{\link{multi_metrics_track}}
+#' functions.
 #'
 #' @param highlight Vector containing the names or identifiers of contigs or
 #' chromosomes to highlight in the circos plot (default NA).
@@ -211,14 +209,12 @@ plot_circos <- function(input_file, tracks,
 #' metrics <- load_genome_metrics("psass_window.tsv")
 #' draw_circos(metrics$data,
 #'             metrics$lengths,
-#'             tracks = list(track("Fst",
-#'                                 label = expression("F"["ST"])),
-#'                           track(c("Snps_females", "Snps_males"),
-#'                                 label = "Pool-specific SNPs",
-#'                                 color = c("firebrick2", "dodgerblue3")),
-#'                           track(c("Depth_ratio"),
-#'                                 label = "Depth ratio",
-#'                                 color = "grey50")),
+#'             tracks = list(single_metric_track("Fst",
+#'                                               label = expression("F"["ST"])),
+#'                           multi_metrics_track(c("Snp_females", "Snp_males"),
+#'                                               label = "Pool-specific SNPs",
+#'                                               colors = c("firebrick2",
+#'                                                          "dodgerblue3")),
 #'             output_file = "circos.png")
 
 draw_circos <- function(data,
@@ -324,26 +320,30 @@ draw_circos <- function(data,
 #' @description Plot a single track for a circos plot
 #'
 #' @param track Track object storing properties for the current track,
-#' generated with the \code{\link{circos_track}} function
+#' generated with the \code{\link{track}}, \code{\link{single_metric_track}},
+#' or \code{\link{multi_metrics_track}} functions.
 #'
 #' @param top_track If TRUE, x-axis labels and sector names will be added to
 #' the track (default: FALSE).
 #'
 #' @param sector_titles_expand Manually set the space between sector titles and
-#' x-axis as a multiple of ymax (default: 1.3)
+#' x-axis as a multiple of ymax (default: 1.3).
 #'
 #' @param first_sector Name of the first sector to draw y-axis on
-#' (default: NA)
+#' (default: NA).
 #'
 #' @examples
 #' data <- load_genome_metrics("window.tsv")
-#' defaults <- list(colors = "red", alpha = 0.5)
-#' track <- track("SNP_males", label = "Male-specific SNPs")
+#' defaults <- list(colors = "blue", alpha = 0.5)
+#' track <- single_metric_track("SNP_males", label = "Male-specific SNPs")
 #' track <- configure_track(track, defaults, data)
-#' plot_track_region(track, top.track=TRUE)
+#' circlize::circos.par("track.height" = 12)
+#' draw_circos_track(track, top_track=TRUE)
 
-draw_circos_track <- function(track, top_track = FALSE,
-                              sector_titles_expand = 1.3, first_sector=NA) {
+draw_circos_track <- function(track,
+                              top_track = FALSE,
+                              sector_titles_expand = 1.3,
+                              first_sector=NA) {
 
     # Get data from track
     data <- track$data
@@ -365,8 +365,8 @@ draw_circos_track <- function(track, top_track = FALSE,
     # Draw the top track of the plot
     circlize::circos.track(factors = data$Contig,
                            x = data$Position,
-                           y = as.vector(unlist(data[,4])),
-                           ylim = track$ylim,
+                           y = data$Value,
+                           ylim = ylim,
                            bg.col = track$bg_colors,
                            panel.fun = function(x, y) {
 
@@ -410,12 +410,30 @@ draw_circos_track <- function(track, top_track = FALSE,
                                                          niceFacing = TRUE)
                                }
 
-                               # Plot the data
-                               circlize::circos.points(x, y,
-                                                       cex = track$point_size,
-                                                       col = data$Color,
-                                                       bg = data$Color,
-                                                       pch = 21)
+                               for (i in 1:length(track$metrics)) {
+
+                                   metric <- track$metrics[[i]]
+
+                                   if (metric$type == "points") {
+
+                                       # Plot the data as points
+                                       circlize::circos.points(x, y,
+                                                               cex = metric$point_size,
+                                                               col = data$Color,
+                                                               bg = data$Color,
+                                                               pch = 21)
+
+                                   } else if (metric$type == "ribbon") {
+
+                                       # Plot the data as ribbon
+                                       circlize::circos.lines(x, y,
+                                                              col = data$Color,
+                                                              lwd = 1,
+                                                              area = TRUE,
+                                                              baseline = ymin)
+
+                                   }
+                               }
 
                                # Add Y axis on the first sector only
                                if (sector_index == first_sector) {
@@ -532,7 +550,9 @@ check_highlight_sectors <- function(data, contig_lengths, highlight) {
                              highlight[i], "\"."))
 
             }
+
         }
+
     }
 
     return(highlight)
@@ -553,10 +573,9 @@ check_highlight_sectors <- function(data, contig_lengths, highlight) {
 #'
 #' @param res Image resolution in ppi
 #'
-#' @return
-#'
 #' @examples
 #' open_output_device('circos.png', width = 1200, height = 1200, res = 120)
+#' open_output_device('circos.pdf', width = 1400, height = 800, res = 160)
 
 open_output_device <- function(output_file, width, height, res) {
 
@@ -619,8 +638,10 @@ open_output_device <- function(output_file, width, height, res) {
 #'
 #' @description Configure background colors for all sectors in circos plot
 #'
-#' @param tracks Track data object generated with the \code{\link{track}}
-#' function.
+#' @param tracks List of track data objects for each track to include in the
+#' plot. Track data objects are generated with the \code{\link{track}},
+#' \code{\link{single_metric_track}}, or \code{\link{multi_metrics_track}}
+#' functions.
 #'
 #' @param highlight Vector containing the names or identifiers of contigs or
 #' chromosomes to highlight in the circos plot.
@@ -630,7 +651,9 @@ open_output_device <- function(output_file, width, height, res) {
 #' @return
 #'
 #' @examples
-#' open_output_device('circos.png', width = 1200, height = 1200, res = 120)
+#' track <- single_metric_track("Fst", colors = "grey70", ylim = c(0, 1))
+#' highlight <- c("LG07")
+#' track <- configure_backgrounds(track, highlight, "grey70")
 
 configure_backgrounds <- function(track, highlight, highlight_bg_color) {
 

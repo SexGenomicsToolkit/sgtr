@@ -26,67 +26,61 @@ psass_fst_chr_detect = load_genome_metrics("psass_fst.tsv", chromosomes=NULL, de
 psass_fst_no_chr = load_genome_metrics("psass_fst.tsv", detect_chromosomes = FALSE)
 psass_fst_no_unplaced = load_genome_metrics("psass_fst_no_unplaced.tsv")
 
-# Draw circos plot
-draw_circos(psass_window_chr$data, psass_window_chr$lengths,
-            tracks = list(circos_track("Fst", label = expression("F"["ST"])),
-                          circos_track(c("Snps_females", "Snps_males"), label = "SNPs", color = c("firebrick2", "dodgerblue3")),
-                          circos_track(c("Abs_depth_females", "Abs_depth_males"), label = "Depth", color = c("firebrick2", "dodgerblue3"))),
-            output.file = "circos.png")
-
-
 # Plot circos
 plot_circos("psass_window.tsv",
-            tracks = list(track("Fst", label = expression("F"["ST"])),
-                          track(c("Snps_females", "Snps_males"), label = "SNPs", colors = c("firebrick2", "dodgerblue3"))),
+            tracks = list(single_metric_track("Fst", type = "ribbon"),
+                          multi_metrics_track(c("Snps_females", "Snps_males"),
+                                              label = "SNPs",
+                                              colors = c("red", "blue"),
+                                              type = "points")),
             chromosomes_file = "chromosomes.tsv",
-            output_file = "circos2.png")
-
-# Plot circos multiple tracks
-plot_circos("psass_window.tsv",
-            tracks = list(track("Fst", label = expression(bold("F"["ST"])),
-                                major_lines_y = TRUE),
-                          track("Snps_males", label = "M. SNPs", colors = c("dodgerblue3"),
-                                major_lines_x = TRUE),
-                          track("Snps_females", label = "F. SNPs", colors = c("firebrick2"),
-                                major_lines_y = FALSE)),
-            chromosomes_file = "chromosomes.tsv",
-            output_file = "circos3.png",
             highlight = 'Chr24',
             highlight_bg_color = "thistle1",
-            default_bg_colors = "white")
+            output_file = "circos.png")
 
 
 # Plot circos
-plot_circos("psass_window.tsv",
-            tracks = list(circos_track("Fst", label = expression("F"["ST"])),
-                          circos_track(c("Snps_females", "Snps_males"), label = "SNPs", colors = c("firebrick2", "dodgerblue3")),
-                          circos_track(c("Abs_depth_females", "Abs_depth_males"), label = "Depth", color = c("firebrick2", "dodgerblue3"))),
-            chromosomes.file.path = "chromosomes.tsv",
-            output.file = "circos2.png")
+plot_manhattan("psass_window.tsv",
+               tracks = list(single_metric_track("Fst", point_size = 0.25, colors = c("grey10", "grey50")),
+                             single_metric_track("Snps_females", color = c("red", "firebrick3")),
+                             single_metric_track("Snps_males", color = c("blue", "dodgerblue3"))),
+               chromosomes_file = "chromosomes.tsv",
+               output_file = "manhattan.png")
 
-# Draw region plot
-region = draw_region(psass_window_chr$data, psass_window_chr$lengths, "Chr24",
-                     tracks = list(track("Fst", label = expression("F"["ST"])),
-                                   track(c("Snps_females", "Snps_males"), label = "Pool-specific SNPs", color = c("firebrick2", "dodgerblue3"), alpha=0.6),
-                                   track(c("Abs_depth_females", "Abs_depth_males"), label = "Absolute depth", color = c("firebrick2", "dodgerblue3"), alpha=c(0.4, 0.4))),
-                     output.file = "region.png", width = 12, track.height = 4, res = 300)
+# Plot circos
+manhattan <- plot_manhattan("psass_window.tsv",
+               tracks = list(single_metric_track("Snps_males", label = "Male-specific SNPs"),
+                             single_metric_track("Snps_females", label = "Female-specific SNPs",
+                                                 alpha = 0.5, point_size = 1.5)),
+               chromosomes_file = "chromosomes.tsv",
+               chromosomes_as_numbers = TRUE,
+               output_file = "manhattan.png")
 
 # Plot region
-plot_region("psass_window.tsv", "Chr24:0-6000000",
-            tracks = list(track("Fst", label = expression("F"["ST"])),
-                          track(c("Snps_females", "Snps_males"), label = "Pool-specific SNPs", color = c("firebrick2", "dodgerblue3"), alpha=0.6),
-                          track(c("Abs_depth_females", "Abs_depth_males"), label = "Absolute depth", color = c("firebrick2", "dodgerblue3"), alpha=c(0.4, 0.4))),
-            chromosomes.file.path = "chromosomes.tsv",
-            output.file = "region2.png", width = 12, track.height = 4, res = 300)
+region <- plot_region("psass_window.tsv",
+                      "Chr24:0-6000000",
+                      tracks = list(single_metric_track("Snps_males", label = "Male-specific SNPs"),
+                                    single_metric_track("Snps_females", label = "Female-specific SNPs",
+                                                        alpha = 0.5, point_size = 1.5, type = "points")),
+                      chromosomes_file = "chromosomes.tsv",
+                      output_file = "region.png",
+                      width = 12,
+                      track_height = 4,
+                      res = 300)
 
-# Draw manhattan
-draw_manhattan_plot(psass_window_chr$data, psass_window_chr$lengths,
-                    tracks = list(manhattan_track("Fst", label = expression("F"["ST"])),
-                                  manhattan_track("Snps_females", label = "SNPs", point.color = c("firebrick1", "firebrick4"))),
-                    output.file = "manhattan.png")
+region <- plot_region("psass_window.tsv",
+                      "Chr24:0-3000000",
+                      tracks = list(single_metric_track("Fst", label = "Fst", color = "darkgreen", alpha = 1,
+                                                        type = "points"),
+                                    multi_metrics_track(c("Snps_females", "Snps_males"),
+                                                        metric_labels = c("F. SNPs", "M. SNPs"),
+                                                        label = "SNPs",
+                                                        colors = c("red", "blue"),
+                                                        type = "ribbon",
+                                                        legend_position = c(0.8, 0.5))),
+                      chromosomes_file = "chromosomes.tsv",
+                      output_file = "region2.png",
+                      width = 12,
+                      track_height = 4,
+                      res = 300)
 
-# Plot manhattan
-plot_manhattan("psass_window.tsv",
-               tracks = list(manhattan_track("Fst", label = expression("F"["ST"])),
-                             manhattan_track("Snps_females", label = "SNPs", point.color = c("firebrick1", "firebrick4"))),
-               output.file = "manhattan.png")

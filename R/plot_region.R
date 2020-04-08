@@ -1,84 +1,125 @@
-#' @title Plot region
+#' @title Plot genome metrics for a specificied genomic region
 #'
-#' @description Generate a linear plot with multiple tracks for a specified genomic region from a genomic data file
+#' @description Generate a linear plot for a specified genomic region with one
+#' or multiple tracks from a genome metrics file
 #'
-#' @param input.file.path Path to a genomic data input file (e.g. result of PSASS or RADSex)
+#' @param input_file Path to a genome metrics input file (e.g. result of
+#' PSASS or RADSex).
+#' Format: Contig | Position | Length | <Metric1> | <Metric2> ... with
+#' Contig = contig identifier, Position = position on the contig, Length =
+#' length of the contig, <MetricN> = value of metric N (e.g. Fst) at the
+#' corresponding position on the corresponding contig.
 #'
-#' @param region Region to plot, with syntax "Contig" or "Contig:start-end"
+#' @param region Region to plot, defined with the syntax "Contig" or
+#' "Contig:start-end"
 #'
-#' @param tracks List of tracks to plot. Tracks can be generated with the \code{\link{region_track}} function
+#' @param tracks List of track data objects for each track to include in the
+#' plot. Track data objects for region plots are generated with the
+#' \code{\link{track}} function. Tracks can represent one or mutiple
+#' metrics from the genome metrics input file.
 #'
-#' @param chromosomes.file.path Path to a tabulated file specifying chromosome names (default: NULL)
+#' @param chromosomes_file Path to the chromosome names file
+#' (i.e. tab-separated file without header and with columns
+#' <Contig ID> | <Chromosome name>). If NA, all contigs will be considered
+#' unplaced except if detect_chromosomes is set to TRUE, in which case
+#' chromosomes will be detected automatically from contig identifiers
+#' (default: NA).
 #'
-#' @param detect.chromosomes If TRUE, will consider contigs starting with LG, CH, or NC as chromosomes if no chromosomes were specified (default: TRUE)
+#' @param detect_chromosomes If TRUE, will consider contigs starting with
+#' "LG", "CHR", or "NC" as chromosomes if no chromosomes were specified
+#' (default: TRUE).
 #'
-#' @param output.file Path to an output file for the generated region plot, or NULL to plot in the current R device (default: NULL)
+#' @param unplaced_label Label for unplaced contigs superscaffold
+#' (default: "U.").
 #'
-#' @param width Plot width when plotting to an output file, in inches (default: 12)
+#' @param output_file Path to an output file for the generated manhattan plot,
+#' or NA to plot in the current R device (default: NA).
 #'
-#' @param track.height Height of a single track when plotting to an output file, in inches (default: 4)
+#' @param width Plot width when plotting to an output file, in inches
+#' (default: 12).
 #'
-#' @param res Image resolution when plotting to an output file, in dpi (default: 300)
+#' @param track_height Height of a single track when plotting to an output file,
+#' in inches (default: 4).
 #'
-#' @param default.color Default color for a track when not specified in track data (default: "grey20")
+#' @param res Image resolution when plotting to an output file, in dpi
+#' (default: 300).
 #'
-#' @param default.alpha Default alpha value for a track when not specified in track data (default: 1)
+#' @param default_colors Default colors when not specified in track data
+#' (default: "grey20").
 #'
-#' @param default.type Default plot type for a track when not specified in track data (default: "ribbon")
+#' @param default_point_size Default point size when not specified in track data
+#' (default: 1).
 #'
-#' @param default.point.size Default point size for a track of type "points" when not specified in track data (default: 0.5)
+#' @param default_ylim Default y-axis limits when not specified in track data
+#' (default: NA, i.e. infer from data).
 #'
-#' @param default.ylim Default y-axis limits for a track when not specified in track data (default: NULL, i.e. infer from data)
+#' @param default_alpha Default alpha value when not specified in track data
+#' (default: 0.6).
 #'
-#' @param default.major.lines.y If TRUE, reference lines will be plotted for the y axis if not specified in track data (default: TRUE)
+#' @param default_type Default plot type when not specified in track data,
+#' either "ribbon" or "points" (default: "ribbon").
 #'
-#' @param default.major.lines.x If TRUE, reference lines will be plotted for the x axis if not specified in track data (default: FALSE)
+#' @param default_major_lines_y Default value for drawing major lines on the
+#' y axis. If TRUE, reference lines will be plotted (default: TRUE).
 #'
-#' @param default.legend.position Default legend position when not specified in track data (default: "none")
+#' @param default_major_lines_x Default value for drawing major lines on the
+#' x axis. If TRUE, reference lines will be plotted (default: FALSE).
 #'
-#' @return Combined plot data (ggplot object)
+#' @param default_legend_position Default value for position of the legend,
+#' directly passed to "legend.position" in \code{\link{ggplot2::theme}}
+#' (default: "right").
+#'
+#' @return
 #'
 #' @examples
-#'
-#' # Plotting an FST track and a combined pool-specific SNPs track
-#' # for an entire chromosome to the default R device
-#'
-#' plot_region("data/psass_window.tsv", "Chr01",
-#'             tracks = list(region_track("Fst", label = expression("F"["ST"])),
-#'                           region_track(c("Snps_females", "Snps_males"), label = "Pool-specific SNPs", color = c("firebrick2", "dodgerblue3"), alpha=0.6)),
-#'             chromosomes.file.path = "data/chromosomes.tsv")
-#'
-
-plot_region <- function(input.file.path, region, tracks,
-                        chromosomes.file.path = NULL, detect.chromosomes = TRUE,
-                        output.file = NULL, width = 12, track.height = 4, res = 300,
-                        default.color = "grey20", default.alpha = 1, default.type = "ribbon", default.point.size = 0.5, default.ylim = NULL,
-                        default.major.lines.y = TRUE, default.major.lines.x = FALSE, default.legend.position = "none") {
 
 
-    # Load chromosome names (return NULL of no chromosomes file)
-    chromosomes <- load_chromosome_names(chromosomes.file.path)
+plot_region <- function(input_file,
+                        region,
+                        tracks,
+                        chromosomes_file = NA,
+                        detect_chromosomes = TRUE,
+                        unplaced_label = "U.",
+                        output_file = NA,
+                        width = 12,
+                        track_height = 4,
+                        res = 300,
+                        default_colors = "grey20",
+                        default_point_size = 1,
+                        default_ylim = NA,
+                        default_alpha = 0.6,
+                        default_type = "ribbon",
+                        default_major_lines_y = TRUE,
+                        default_major_lines_x = FALSE,
+                        default_legend_position = "right") {
 
-    # Load genomic data
-    data <- load_genome_input(input.file.path, chromosomes = chromosomes, detect.chromosomes = detect.chromosomes, unplaced.label = "Unplaced")
 
-    # Plot genomic region
-    region_plot <- draw_region(data$data,
-                               data$lengths,
-                               region,
-                               tracks,
-                               output.file = output.file,
-                               width = width,
-                               track.height = track.height,
-                               res = res,
-                               default.color = default.color,
-                               default.alpha = default.alpha,
-                               default.type = default.type,
-                               default.point.size = default.point.size,
-                               default.ylim = default.ylim,
-                               default.major.lines.y = default.major.lines.y,
-                               default.major.lines.x = default.major.lines.x,
-                               default.legend.position = default.legend.position)
+    # Load chromosome names (return NA if no chromosomes file)
+    chromosomes <- load_chromosome_names(chromosomes_file)
+
+    # Load genomic metrics data
+    data <- load_genome_metrics(input_file,
+                                chromosomes = chromosomes,
+                                detect_chromosomes = detect_chromosomes,
+                                unplaced_label = unplaced_label)
+    # Draw the plot
+    r <- draw_region(data$data,
+                     data$lengths,
+                     region,
+                     tracks,
+                     output_file = output_file,
+                     width = width,
+                     track_height = track_height,
+                     res = res,
+                     default_colors = default_colors,
+                     default_point_size = default_point_size,
+                     default_ylim = default_ylim,
+                     default_alpha = default_alpha,
+                     default_major_lines_y = default_major_lines_y,
+                     default_major_lines_x = default_major_lines_x,
+                     default_legend_position = default_legend_position)
+
+    return(r)
 
 }
 
@@ -86,62 +127,118 @@ plot_region <- function(input.file.path, region, tracks,
 
 
 
-#' @title Draw region plot
+#' @title Draw genome metrics for a specified genomic region
 #'
-#' @description Generate a linear plot with multiple tracks for a specified genomic region
+#' @description Generate a linear plot for a specified genomic region with one
+#' or multiple tracks from a genome metrics data frame and a contig lengths
+#' vector
 #'
-#' @param data Genomic data (e.g. result of PSASS or RADSex loaded with the \code{\link{load_genome_input}} function)
+#' @param data Genome metrics data frame (e.g. result of PSASS or RADSex loaded
+#' with the \code{\link{load_genome_input}} function).
+#' Format: Contig | Position | Length | <Metric1> | <Metric2> ... with
+#' Contig = contig identifier, Position = position on the contig, Length =
+#' length of the contig, <MetricN> = value of metric N (e.g. Fst) at the
+#' corresponding position on the corresponding contig.
 #'
-#' @param contig.lengths Contig lengths from the output of the \code{\link{load_genome_input}} function
+#' @param contig_lengths Contig lengths data frame from the output of the
+#' \code{\link{load_genome_input}} function. Format: <Contig ID> | <Length>
 #'
-#' @param region Region to plot, with syntax "Contig" or "Contig:start-end"
+#' @param region Region to plot, defined with the syntax "Contig" or
+#' "Contig:start-end"
 #'
-#' @param tracks List of tracks to plot. Tracks can be generated with the \code{\link{region_track}} function
+#' @param tracks List of track data objects for each track to include in the
+#' plot. Track data objects for region plots are generated with the
+#' \code{\link{track}} function. Tracks can represent one or mutiple
+#' metrics from the genome metrics input file.
 #'
-#' @param output.file Path to an output file for the generated region plot, or NULL to plot in the current R device (default: NULL)
+#' @param chromosomes_file Path to the chromosome names file
+#' (i.e. tab-separated file without header and with columns
+#' <Contig ID> | <Chromosome name>). If NA, all contigs will be considered
+#' unplaced except if detect_chromosomes is set to TRUE, in which case
+#' chromosomes will be detected automatically from contig identifiers
+#' (default: NA).
 #'
-#' @param width Plot width when plotting to an output file, in inches (default: 12)
+#' @param detect_chromosomes If TRUE, will consider contigs starting with
+#' "LG", "CHR", or "NC" as chromosomes if no chromosomes were specified
+#' (default: TRUE).
 #'
-#' @param track.height Height of a single track when plotting to an output file, in inches (default: 4)
+#' @param unplaced_label Label for unplaced contigs superscaffold
+#' (default: "U.").
 #'
-#' @param res Image resolution when plotting to an output file, in dpi (default: 300)
+#' @param output_file Path to an output file for the generated manhattan plot,
+#' or NA to plot in the current R device (default: NA).
 #'
-#' @param default.color Default color for a track when not specified in track data (default: "grey20")
+#' @param width Plot width when plotting to an output file, in inches
+#' (default: 12).
 #'
-#' @param default.alpha Default alpha value for a track when not specified in track data (default: 1)
+#' @param track_height Height of a single track when plotting to an output file,
+#' in inches (default: 4).
 #'
-#' @param default.type Default plot type for a track when not specified in track data (default: "ribbon")
+#' @param res Image resolution when plotting to an output file, in dpi
+#' (default: 300).
 #'
-#' @param default.point.size Default point size for a track of type "points" when not specified in track data (default: 0.5)
+#' @param default_colors Default colors when not specified in track data
+#' (default: "grey20").
 #'
-#' @param default.ylim Default y-axis limits for a track when not specified in track data (default: NULL, i.e. infer from data)
+#' @param default_point_size Default point size when not specified in track data
+#' (default: 1).
 #'
-#' @param default.major.lines.y If TRUE, reference lines will be plotted for the y axis if not specified in track data (default: TRUE)
+#' @param default_ylim Default y-axis limits when not specified in track data
+#' (default: NA, i.e. infer from data).
 #'
-#' @param default.major.lines.x If TRUE, reference lines will be plotted for the x axis if not specified in track data (default: FALSE)
+#' @param default_alpha Default alpha value when not specified in track data
+#' (default: 0.6).
 #'
-#' @param default.legend.position Default legend position when not specified in track data (default: "none")
+#' @param default_type Default plot type when not specified in track data,
+#' either "ribbon" or "points" (default: "ribbon").
 #'
-#' @return Combined plot data (ggplot object)
+#' @param default_major_lines_y Default value for drawing major lines on the
+#' y axis. If TRUE, reference lines will be plotted (default: TRUE).
+#'
+#' @param default_major_lines_x Default value for drawing major lines on the
+#' x axis. If TRUE, reference lines will be plotted (default: FALSE).
+#'
+#' @param default_legend_position Default value for position of the legend,
+#' directly passed to "legend.position" in \code{\link{ggplot2::theme}}
+#' (default: "right").
+#'
+#' @return
 #'
 #' @examples
-#' # Plotting an FST track and a combined pool-specific SNPs track
-#' # for the first 3Mb of chromosome 1 to the default R device
-#'
-#' genomic_data <- load_genome_input("psass_window.tsv")
-#'
-#' draw_region(genomic_data$data, genomic_data$lengths, "Chr01:0-3000000",
-#'             tracks = list(region_track("Fst", label = expression("F"["ST"])),
-#'                           region_track(c("Snps_females", "Snps_males"), label = "Pool-specific SNPs", color = c("firebrick2", "dodgerblue3"), alpha=0.6)))
-#'
 
-draw_region <- function(data, contig.lengths, region, tracks,
-                        output.file = NULL, width = 12, track.height = 4, res = 300,
-                        default.color = "grey20", default.alpha = 1, default.type = "ribbon", default.point.size = 0.5, default.ylim = NULL,
-                        default.major.lines.y = TRUE, default.major.lines.x = FALSE, default.legend.position = "right") {
+draw_region <- function(data,
+                        contig_lengths,
+                        region,
+                        tracks,
+                        chromosomes_file = NA,
+                        detect_chromosomes = TRUE,
+                        unplaced_label = "U.",
+                        output_file = NA,
+                        width = 12,
+                        track_height = 4,
+                        res = 300,
+                        default_colors = "grey20",
+                        default_point_size = 1,
+                        default_ylim = NA,
+                        default_alpha = 0.6,
+                        default_type = "ribbon",
+                        default_major_lines_y = TRUE,
+                        default_major_lines_x = FALSE,
+                        default_legend_position = "right") {
 
-    # Add original contig names to contig lengths so that user can specify both chromosome names or contig names in region
-    contig_lengths <- c(contig_lengths, setNames(unique(data$Length), unique(data$Contig)))
+    defaults <- list(colors = default_colors,
+                     point_size = default_point_size,
+                     ylim = default_ylim,
+                     alpha = default_alpha,
+                     type = default_type,
+                     major_lines_y = default_major_lines_y,
+                     major_lines_x = default_major_lines_x,
+                     legend_position = default_legend_position)
+
+    # Add original contig names to contig lengths so that the user can
+    # specify both chromosome names or contig names in region
+    contig_lengths <- c(contig_lengths,
+                        setNames(unique(data$Length), unique(data$Contig)))
 
     # Get contig, min, and max from the region string
     region_info <- parse_region(region, contig_lengths)
@@ -156,17 +253,12 @@ draw_region <- function(data, contig.lengths, region, tracks,
 
         if (i == n_tracks) bottom_track <- TRUE  # For x-axis labels and title
 
-        # Assign default values to track properties if not specified by user
-        tracks[[i]] <- assign_region_track_default(tracks[[i]], default.color = default.color,
-                                                   default.alpha = default.alpha, default.type = default.type, default.point.size = default.point.size,
-                                                   default.major.lines.y = default.major.lines.y, default.major.lines.x = default.major.lines.x,
-                                                   default.legend.position = default.legend.position, default.ylim = default.ylim)
-
-        # Generate track data
-        track_data <- create_region_track_data(data, region_info, tracks[[i]])
+        # Configure track values
+        tracks[[i]] <- configure_track(tracks[[i]], defaults, data, region_info)
 
         # Generate track plot
-        plots[[i]] <- plot_track_region(track_data, region_info, tracks[[i]], bottom.track = bottom_track)
+        plots[[i]] <- draw_region_track(tracks[[i]], region_info,
+                                        bottom_track = bottom_track)
 
     }
 
@@ -174,9 +266,13 @@ draw_region <- function(data, contig.lengths, region, tracks,
     combined <- cowplot::plot_grid(plotlist = plots, ncol = 1, align = "v")
 
     # Output to file if specified or print in current R device otherwise
-    if (!is.null(output.file)) {
+    if (!is.null(output_file)) {
 
-        ggplot2::ggsave(output.file, plot = combined, width = width, height = track.height * n_tracks, dpi = res)
+        ggplot2::ggsave(output_file,
+                        plot = combined,
+                        width = width,
+                        height = track_height * n_tracks,
+                        dpi = res)
 
     } else {
 
@@ -184,198 +280,11 @@ draw_region <- function(data, contig.lengths, region, tracks,
 
     }
 
-    # Return combined ggplot object
-    return(combined)
+    # Return plot list
+    return(plots)
 
 }
 
-
-
-
-
-#' @title Create region track data
-#'
-#' @description Create input data frame for the \code{\link{plot_track_region}} function from the genomic data and the track information
-#'
-#' @param data Genomic data (e.g. result of PSASS or RADSex loaded with the \code{\link{load_genome_input}} function)
-#'
-#' @param region.info Information on the region to plot, output of the \code{\link{parse_region}} function
-#'
-#' @param track Track object for the current plot, generated with the \code{\link{region_track}} function
-#'
-#' @return A data frame with columns:
-#' Position | Metric 1 | Metric 1 colors | ... | Metric N | Metric N colors
-#'
-#' @examples
-#' genomic_data <- load_genome_input("psass_window.tsv")
-#' region_info <- parse_region("Chr01:0-1500000")
-#' track <- region_track("Fst")
-#'
-#' region_data <- create_region_track_data(genomic_data, region_info, track)
-#'
-
-create_region_track_data <- function(data, region.info, track) {
-
-    # Extract data points for the region from genomic data
-    if (region_info[[1]] %in% unique(data$Contig)) {
-
-        data <- subset(data, data$Contig == region_info[[1]] & data$Position >= region_info[[2]] & data$Position <= region_info[[3]])
-
-    } else if (region_info[[1]] %in% unique(data$Contig_plot)) {
-
-        data <- subset(data, data$Contig_plot == region_info[[1]] & data$Position >= region_info[[2]] & data$Position <= region_info[[3]])
-
-    }
-
-    # Extract required columns and create color columns
-    track_data <- data[, c("Position")]
-    for (i in 1:length(track$metrics)) { track_data = cbind(track_data, data[, c(track$metrics[i])], rep(track$color[i], nrow(data))) }
-
-    return(track_data)
-
-}
-
-
-
-
-
-#' @title Create region track object
-#'
-#' @description Generate an object storing all properties for a region track
-#'
-#' @param metrics Metrics included in the track. Metrics should correspond to column names in the data frame used as input
-#' data in the plot (output of the \code{\link{load_genome_input}} function). Possible values: a string if the track includes
-#' a single metric (e.g. "Fst"), or a vector if the track includes several metrics (e.g. c("Snps_females", "Snps_males"))
-#'
-#' @param label Track label, NULL to set the label to the metric name for single-metric tracks. Label has to be specified for multi-metrics tracks (default: NULL)
-#'
-#' @param color Track color. Values can be a string (e.g. "grey20") and will then be applied to all metrics, or a vector of size equal to the number of metrics
-#' (e.g. c("red", "blue") for two metrics)
-#'
-#' @param alpha Track alpha value. Values can be a float (e.g. 0.5) and will then be applied to all metrics, or a vector of size equal to the number of metrics
-#' (e.g. c(1, 0.5, 0.75) for three metrics)
-#'
-#' @param type Track plot type. Possible values: "ribbon" or "points". Values can be a string (e.g. "ribbon") and will then be applied to all metrics,
-#' or a vector of size equal to the number of metrics (e.g. c("points", "ribbon") for two metrics)
-#'
-#' @param point.size Point size for plots of type "points". Values can be a float (e.g. 0.5) and will then be applied to all metrics,
-#' or a vector of size equal to the number of metrics (e.g. c(1, 1.5, 3) for three metrics)
-#'
-#' @param major.lines.y Plot reference lines for the y axis, directly passed to "major.lines.y" in \code{\link{ggplot2::theme}} (single value)
-#'
-#' @param major.lines.x Plot reference lines for the x axis, directly passed to "major.lines.x" in \code{\link{ggplot2::theme}} (single value)
-#'
-#' @param legend.position Position of the legend for the track, directly passed to "legend.position" in \code{\link{ggplot2::theme}} (single value)
-#'
-#' @param ylim Vector of y-axis limits for the track; if NULL, infer directly from data
-#'
-#' @return A named list with the value of each track property
-#'
-#' @examples
-#' # Single metric
-#' track_data <- region_track("Fst", color = "grey70", type = "points", point.size = 0.75)
-#'
-#' # Multiple metrics
-#' track_data <- region_track(c("Snp_females", "Snp_males"), color = c("firebrick2", "dodgerblue3"), alpha = 0.5)
-#'
-
-region_track <- function(metrics, label = NULL, color = NULL, alpha = NULL, type = NULL, point.size = NULL,
-                         major.lines.y = NULL, major.lines.x = NULL, legend.position = NULL, ylim = NULL) {
-
-    n_metrics <- length(metrics)
-
-    if (is.null(label)) {
-
-        if (n_metrics == 1) {
-
-            label <- metrics  # Set a default label if not specified
-
-        } else {
-
-            stop("Label required for multi-metrics track")
-
-        }
-    }
-
-    # Handle multi-values properties for multiple metrics (i.e. metric-specific properties)
-    if (n_metrics > 1) {
-
-        # For each option, assign value to each metric if single value was defined in multi-metrics track
-        if (length(color) == 1) { color <- rep(color, n_metrics) }
-        if (length(alpha) == 1) { alpha <- rep(alpha, n_metrics) }
-        if (length(type) == 1) { type <- rep(type, n_metrics) }
-        if (length(point.size) == 1) { point.size <- rep(point.size, n_metrics) }
-
-    }
-
-    # Single-value properties (not metric-specific)
-    major.lines.y <- major.lines.y
-    major.lines.x <- major.lines.x
-    legend.position <- legend.position
-    ylim <- ylim
-
-    track_info <- list(metrics=metrics, label=label, color=color, alpha=alpha, type=type, point.size=point.size,
-                       major.lines.y = major.lines.y, major.lines.x = major.lines.x, legend.position = legend.position,
-                       ylim = ylim)
-
-    return(track_info)
-
-}
-
-
-
-
-
-#' @title Assign default values to a region track object
-#'
-#' @description Assign default values to all properties for which the value was not specified by the user (e.g. value is NULL)
-#'
-#' @param track A track object generated with the \code{\link{region_track}} function)
-#'
-#' @param default.color Default color for a track when not specified in track data (default: "grey20")
-#'
-#' @param default.alpha Default alpha value for a track when not specified in track data (default: 1)
-#'
-#' @param default.type Default plot type for a track when not specified in track data (default: "ribbon")
-#'
-#' @param default.point.size Default point size for a track of type "points" when not specified in track data (default: 0.5)
-#'
-#' @param default.ylim Default y-axis limits for a track when not specified in track data (default: NULL, i.e. infer from data)
-#'
-#' @param default.major.lines.y If TRUE, reference lines will be plotted for the y axis if not specified in track data (default: TRUE)
-#'
-#' @param default.major.lines.x If TRUE, reference lines will be plotted for the x axis if not specified in track data (default: FALSE)
-#'
-#' @param default.legend.position Default legend position when not specified in track data (default: "none")
-#'
-#' @return A track object with default values for properties not specified by the user
-#'
-#' @examples
-#' track_data <- assign_region_track_default(track_data, default.alpha = 0.75)
-#'
-
-assign_region_track_default <- function(track, default.color = "grey20", default.alpha = 1, default.type = "ribbon",
-                                        default.point.size = 0.5, default.ylim = NULL,
-                                        default.major.lines.y = TRUE, default.major.lines.x = FALSE,
-                                        default.legend.position = "right") {
-
-    n_metrics <- length(track$metrics)
-
-    # Metrics-specific options (create vector)
-    if (is.null(track$color)) { track$color <- rep(default.color, n_metrics) }
-    if (is.null(track$alpha)) { track$alpha <- rep(default.alpha, n_metrics) }
-    if (is.null(track$type)) { track$type <- rep(default.type, n_metrics) }
-    if (is.null(track$point.size)) { track$point.size <- rep(default.point.size, n_metrics) }
-
-    # Track-specific options (single value)
-    if (is.null(track$legend.position)) { track$legend.position <- default.legend.position }
-    if (is.null(track$major.lines.y)) { track$major.lines.y <- default.major.lines.y }
-    if (is.null(track$major.lines.x)) { track$major.lines.x <- default.major.lines.x }
-    if (is.null(track$ylim)) { track$ylim <- default.ylim }
-
-    return(track)
-
-}
 
 
 
@@ -384,13 +293,14 @@ assign_region_track_default <- function(track, default.color = "grey20", default
 #'
 #' @description Plot a single track for a genomic region
 #'
-#' @param data Input data generated with the \code{\link{create_region_track_data}} function)
+#' @param track Track object storing properties for the current track,
+#' generated with the \code{\link{track}} function.
 #'
-#' @param region.info Information on the region to plot, output of the \code{\link{parse_region}} function
+#' @param region Region to plot, output of the \code{\link{parse_region}}
+#' function, or NA to retain the entire genome.
 #'
-#' @param track Track object storing properties for the current track, generated with the \code{\link{region_track}} function
-#'
-#' @param bottom.track If TRUE, x-axis labels and title will be added to the plot
+#' @param bottom_track If TRUE, x-axis labels and title will be added to
+#' the plot (default: FALSE).
 #'
 #' @return A ggplot object for the plot
 #'
@@ -401,83 +311,123 @@ assign_region_track_default <- function(track, default.color = "grey20", default
 #' region_data <- create_region_track_data(genomic_data, region_info, fst_track)
 #'
 #' fst_plot <- plot_track_region(region_data, region_info, fst_track, bottom.track=TRUE)
-#'
 
-plot_track_region <- function(data, region.info, track, bottom.track = FALSE) {
+draw_region_track <- function(track, region, bottom_track = FALSE) {
+
+    data <- track$data
+
+    color_scale <- c()
+    metrics <- c()
+
+    for (i in 1:length(track$metrics)) {
+
+        metric <- track$metrics[[i]]
+        color_scale <- c(color_scale, metric$colors)
+        metrics <- c(metrics, metric$label)
+
+    }
+
+    data$Color <- factor(data$Color, levels = color_scale)
 
     # Create major grid lines for y axis if specified
-    if (track$major.lines.y) {
+    if (track$major_lines_y) {
+
         major_lines_y <- ggplot2::element_line(color = "grey95", linetype = 1)
+
     } else {
+
         major_lines_y <- ggplot2::element_blank()
+
     }
 
     # Create major grid lines for x axis if specified
-    if (track$major.lines.x) {
+    if (track$major_lines_x) {
+
         major_lines_x <- ggplot2::element_line(color = "grey95", linetype = 1)
+
     } else {
+
         major_lines_x <- ggplot2::element_blank()
+
     }
 
     # Add x axis if bottom track
-    if (!bottom.track) {
+    if (!bottom_track) {
+
         axis_title_x <- ggplot2::element_blank()
+
     } else {
+
         axis_title_x <- ggplot2::element_text()
+
     }
 
-    n_datasets <- (ncol(data) - 1) / 2
+    # Assign values for y-axis limits
+    if (is.na(track$ylim)) {
 
-    # Check if at least one dataset is to be plotted as ribbon to setup y-axis limits
-    has_ribbon = TRUE
-    for (i in 1:n_datasets) { if (track$type[i] == "ribbon") { has_ribbon <- TRUE }}
-
-    # Create y-axis limits if not specified, expand a bit from min and max
-    if (is.null(track$ylim)) {
-
-        ymin <- min(data[, 2 * seq(1, n_datasets)])
-        if (has_ribbon == TRUE) ymin <- min(0, ymin)
-        ymax <- max(data[, 2 * seq(1, n_datasets)])
-        track$ylim <- c(0.975 * ymin, 1.025 * ymax)
+        ymin <- min(data$Value)
+        if (ymin < 0) { ymin <- 1.025 * ymin } else { ymin <- 0.976 * ymin }
+        ymax <- max(data$Value)
+        if (ymax < 0) { ymax <- 0.976 * ymax } else { ymax <- 1.025 * ymax }
+        track$ylim <- c(ymin, ymax)
 
     }
 
     # Initialize the plot
     g <- ggplot2::ggplot() +
         cowplot::theme_cowplot() +
-        ggplot2::scale_y_continuous(name = track$label, expand = ggplot2::expand_scale(c(0, 0.01), 0), limits = track$ylim) +
-        generate_x_scale(region_info) +
-        ggplot2::theme(legend.position = track$legend.position,
-                       axis.text.y = ggplot2::element_text(margin = ggplot2::margin(l = 5)),
+        ggplot2::scale_y_continuous(name = track$label,
+                                    expand = ggplot2::expansion(c(0, 0.01), 0),
+                                    limits = track$ylim) +
+        generate_x_scale(region) +
+        ggplot2::theme(legend.position = track$legend_position,
                        panel.grid.major.y = major_lines_y,
                        panel.grid.major.x = major_lines_x,
                        axis.title.x = axis_title_x)
 
+
+
     # Draw data for each metric
-    for (i in c(1:n_datasets)) {
+    for (i in 1:length(track$metrics)) {
 
-        if (track$type[i] == "ribbon") {
+        metric <- track$metrics[[i]]
+        plot_data <- subset(data, data$Metric == metric$name)
 
-            # For ribbon, single color
-            plot_data <- data[, c(1, 2*i)]
-            names(plot_data) <- c("Position", "Values")
-            ribbon_color = as.character(data[1, 2*i+1])
+        if (metric$type == "ribbon") {
 
-            g <- g + ggplot2::geom_ribbon(data = plot_data, ggplot2::aes(x = Position, ymin = 0, ymax = Values),
-                                          fill = ribbon_color, color = ribbon_color, size = 0.4, alpha = track$alpha[i])
+            g <- g + ggplot2::geom_ribbon(data = plot_data,
+                                          ggplot2::aes(x = Position,
+                                                       ymin = track$ylim[1],
+                                                       ymax = Value,
+                                                       fill = Color,
+                                                       color = Color),
+                                          size = 0.4,
+                                          alpha = metric$alpha)
 
-        } else if (track$type[i] == "points") {
+        } else if (metric$type == "points") {
 
-            # For points, color is a vector
-            plot_data <- data[, c(1, 2*i, 2*i+1)]
-            names(plot_data) <- c("Position", "Values", "Color")
-
-            g <- g + ggplot2::geom_point(data = plot_data, ggplot2::aes(x = Position, y = Values),
-                                         fill = Color, color = Color,
-                                         size = point.size, alpha = track$alpha[i])
+            g <- g + ggplot2::geom_point(data = plot_data,
+                                         ggplot2::aes(x = Position,
+                                                      y = Value,
+                                                      fill = Color,
+                                                      color = Color),
+                                         size = metric$point_size,
+                                         alpha = metric$alpha)
 
         }
+
     }
+
+    g <- g +
+        ggplot2::scale_color_manual(name = "",
+                                    values = color_scale,
+                                    labels = metrics) +
+        ggplot2::scale_fill_manual(name = "",
+                                   values = color_scale,
+                                   labels = metrics)
+
+    if (length(metrics) == 1) { g <- g + ggplot2::guides(color = FALSE,
+                                                         fill = FALSE) }
 
     return(g)
 

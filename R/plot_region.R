@@ -32,7 +32,7 @@
 #' @param unplaced_label Label for unplaced contigs superscaffold
 #' (default: "U.").
 #'
-#' @param output_file Path to an output file for the generated manhattan plot,
+#' @param output_file Path to an output file for the generated region plot,
 #' or NA to plot in the current R device (default: NA).
 #'
 #' @param width Plot width when plotting to an output file, in inches

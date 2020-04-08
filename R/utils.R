@@ -169,3 +169,42 @@ generate_x_scale <- function(region_info, n_ticks = 10) {
     return(output)
 
 }
+
+
+
+
+
+#' @title Drop columns from a data frame
+#'
+#' @description Remove columns from a data frame by name. Generate a warning
+#' if columns to remove do not exist in the data frame.
+#'
+#' @param data A data frame.
+#'
+#' @param columns A string (i.e. "value") or vector of strings (
+#' i.e. c("X1", "X2")) of columns to drop from the data frame.
+#'
+#' @return A data frame in which the specified columns were removed.
+#'
+#' @examples
+#' data <- data.frame(x = c(1), y = c(2), z = c(3))
+#' data <- drop_columns(data, c("x", "z"))
+
+drop_columns <- function(data, columns) {
+
+    columns <- c(columns)
+
+    for (i in 1:length(columns)) {
+
+        if (!(columns[i] %in% names(data))) {
+
+            warning(paste0("Ccolumn \"", columns[i], "\" was not found in the ",
+                           "data frame while trying to remove the column"))
+
+        }
+
+    }
+
+    return(data[, -which(names(data) %in% columns)])
+
+}

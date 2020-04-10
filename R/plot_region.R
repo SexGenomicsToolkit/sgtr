@@ -29,9 +29,6 @@
 #' "LG", "CHR", or "NC" as chromosomes if no chromosomes were specified
 #' (default: TRUE).
 #'
-#' @param unplaced_label Label for unplaced contigs superscaffold
-#' (default: "U.").
-#'
 #' @param output_file Path to an output file for the generated region plot,
 #' or NA to plot in the current R device (default: NA).
 #'
@@ -79,7 +76,6 @@ plot_region <- function(input_file,
                         tracks,
                         chromosomes_file = NA,
                         detect_chromosomes = TRUE,
-                        unplaced_label = "U.",
                         output_file = NA,
                         width = 12,
                         track_height = 4,
@@ -100,8 +96,7 @@ plot_region <- function(input_file,
     # Load genomic metrics data
     data <- load_genome_metrics(input_file,
                                 chromosomes = chromosomes,
-                                detect_chromosomes = detect_chromosomes,
-                                unplaced_label = unplaced_label)
+                                detect_chromosomes = detect_chromosomes)
     # Draw the plot
     r <- draw_region(data$data,
                      data$lengths,
@@ -305,29 +300,51 @@ draw_region <- function(data,
 #' @return A ggplot object for the plot
 #'
 #' @examples
-#' genomic_data <- load_genome_input("psass_window.tsv")
-#' region_info <- parse_region("Chr01:0-1500000")
-#' fst_track <- region_track("Fst")
-#' region_data <- create_region_track_data(genomic_data, region_info, fst_track)
-#'
-#' fst_plot <- plot_track_region(region_data, region_info, fst_track, bottom.track=TRUE)
 
 draw_region_track <- function(track, region, bottom_track = FALSE) {
 
     data <- track$data
+    n_metrics <- length(track$metrics)
 
-    color_scale <- c()
-    metrics <- c()
+    if (n_metrics > 1 |
+        (n_metrics == 1 & !is.function(track$metrics[[1]]$colors))) {
 
-    for (i in 1:length(track$metrics)) {
+        # Color palettes are not allowed in multi-metrics tracks, expect at most
+        # one color per metric. Create a merged color scale for all metrics and
+        # assign proper labels.
 
-        metric <- track$metrics[[i]]
-        color_scale <- c(color_scale, metric$colors)
-        metrics <- c(metrics, metric$label)
+        colors <- c()
+        metrics <- c()
+
+        for (i in 1:length(track$metrics)) {
+
+            metric <- track$metrics[[i]]
+            colors <- c(colors, metric$colors)
+            metrics <- c(metrics, metric$label)
+
+        }
+
+        data$Color <- factor(data$Color, levels = colors)
+
+        color_scales <- list(ggplot2::scale_color_manual(name = "",
+                                                         values = colors,
+                                                         labels = metrics),
+                             ggplot2::scale_fill_manual(name = "",
+                                                        values = colors,
+                                                        labels = metrics))
+
+    } else {
+
+        # Colors were defined using a palette function in a single metric track,
+        # generate the proper color scale legend.
+
+        colors <- stats::setNames(unique(data$Color), unique(data$Color))
+        color_scales <- list(ggplot2::scale_color_manual(name = "",
+                                                         values = colors),
+                             ggplot2::scale_fill_manual(name = "",
+                                                        values = colors))
 
     }
-
-    data$Color <- factor(data$Color, levels = color_scale)
 
     # Create major grid lines for y axis if specified
     if (track$major_lines_y) {
@@ -358,12 +375,13 @@ draw_region_track <- function(track, region, bottom_track = FALSE) {
 
     } else {
 
-        axis_title_x <- ggplot2::element_text()
+        axis_title_x <- ggplot2::element_text(face = "bold",
+                                              margin = ggplot2::margin(10, 5, 5, 5))
 
     }
 
     # Assign values for y-axis limits
-    if (is.na(track$ylim)) {
+    if (is.na(c(track$ylim)[1])) {
 
         ymin <- min(data$Value)
         if (ymin < 0) { ymin <- 1.025 * ymin } else { ymin <- 0.976 * ymin }
@@ -384,8 +402,6 @@ draw_region_track <- function(track, region, bottom_track = FALSE) {
                        panel.grid.major.y = major_lines_y,
                        panel.grid.major.x = major_lines_x,
                        axis.title.x = axis_title_x)
-
-
 
     # Draw data for each metric
     for (i in 1:length(track$metrics)) {
@@ -418,16 +434,10 @@ draw_region_track <- function(track, region, bottom_track = FALSE) {
 
     }
 
-    g <- g +
-        ggplot2::scale_color_manual(name = "",
-                                    values = color_scale,
-                                    labels = metrics) +
-        ggplot2::scale_fill_manual(name = "",
-                                   values = color_scale,
-                                   labels = metrics)
+    g <- g + color_scales
 
-    if (length(metrics) == 1) { g <- g + ggplot2::guides(color = FALSE,
-                                                         fill = FALSE) }
+    if (n_metrics == 1) { g <- g + ggplot2::guides(color = FALSE,
+                                                   fill = FALSE) }
 
     return(g)
 

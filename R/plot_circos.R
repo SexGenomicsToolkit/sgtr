@@ -88,7 +88,7 @@
 plot_circos <- function(input_file, tracks,
                         chromosomes_file = NA,
                         detect_chromosomes = TRUE,
-                        unplaced_label = "Unplaced",
+                        unplaced_label = "U.",
                         highlight = NA,
                         highlight_bg_color = "grey80",
                         output_file = NA,
@@ -349,7 +349,7 @@ draw_circos_track <- function(track,
     data <- track$data
 
     # Assign values for y-axis limits
-    if (is.na(track$ylim)) {
+    if (is.na(c(track$ylim)[1])) {
 
         ymin <- min(data[, 4])
         if (ymin < 0) { ymin <- 1.025 * ymin } else { ymin <- 0.976 * ymin }
@@ -379,25 +379,30 @@ draw_circos_track <- function(track,
                                xmax <- circlize::CELL_META$xlim[2]
                                xplot <- circlize::CELL_META$xplot
 
-                               major_x <- c(0, xmax / 3, 2 * xmax / 3, xmax)
-                               major_y <- c(ylim[1],
+                               x_ticks <- c(0, xmax / 3, 2 * xmax / 3, xmax)
+                               y_ticks <- c(ylim[1],
                                             (ylim[2] - ylim[1]) / 2 + ylim[1],
+                                            ylim[2])
+                               major_y <- c(ylim[1],
+                                            (ylim[2] - ylim[1]) / 4 + ylim[1],
+                                            (ylim[2] - ylim[1]) / 2 + ylim[1],
+                                            3 * (ylim[2] - ylim[1]) / 4 + ylim[1],
                                             ylim[2])
 
                                # Add top axis and titles to sectors
                                if (top_track) {
 
-                                   major_x_mb <- convert_to_mb(major_x)
+                                   x_ticks_mb <- convert_to_mb(x_ticks)
 
                                    # Create x axis on top of sectors
                                    circlize::circos.axis(h = "top",
                                                          # Label every 1/3 of the axis
-                                                         major.at = major_x,
+                                                         major.at = x_ticks,
                                                          labels.cex = 1.2,
                                                          labels.facing = "outside",
                                                          direction="outside",
                                                          # Conversion to Mb
-                                                         labels = major_x_mb,
+                                                         labels = x_ticks_mb,
                                                          minor.ticks = 4,
                                                          labels.pos.adjust = TRUE)
 
@@ -414,20 +419,25 @@ draw_circos_track <- function(track,
 
                                    metric <- track$metrics[[i]]
 
+                                   colors <- subset(data$Color,
+                                                    data$Metric == metric$name &
+                                                    data$Contig == sector_index)
+
                                    if (metric$type == "points") {
 
                                        # Plot the data as points
                                        circlize::circos.points(x, y,
                                                                cex = metric$point_size,
-                                                               col = data$Color,
-                                                               bg = data$Color,
+                                                               col = colors,
+                                                               bg = colors,
                                                                pch = 21)
 
                                    } else if (metric$type == "ribbon") {
 
                                        # Plot the data as ribbon
                                        circlize::circos.lines(x, y,
-                                                              col = data$Color,
+                                                              col = colors[1],
+                                                              border = colors[1],
                                                               lwd = 1,
                                                               area = TRUE,
                                                               baseline = ymin)
@@ -438,25 +448,25 @@ draw_circos_track <- function(track,
                                # Add Y axis on the first sector only
                                if (sector_index == first_sector) {
 
-                                   major_y_lab <- major_y
+                                   y_ticks_lab <- y_ticks
                                    # Round y-axis labels if values are big
                                    # enough
-                                   if (major_y[3] - major_y[1] >= 10) {
+                                   if (y_ticks[3] - y_ticks[1] >= 10) {
 
-                                       major_y_lab <- round(major_y, 0)
+                                       y_ticks_lab <- round(y_ticks, 0)
 
                                    } else {
 
-                                       major_y_lab <- round(major_y, 2)
+                                       y_ticks_lab <- round(y_ticks, 2)
 
                                    }
 
                                    # Create y axis
                                    circlize::circos.yaxis(side = "left",
-                                                          at = major_y,  # 3 labels
+                                                          at = y_ticks,  # 3 labels
                                                           labels.cex = 1.2,
                                                           labels.niceFacing = FALSE,
-                                                          labels = major_y_lab)
+                                                          labels = y_ticks_lab)
 
                                    # Add y axis labels
                                    # Axis title will be plotted 7.5% on the
@@ -473,11 +483,11 @@ draw_circos_track <- function(track,
 
                                if (track$major_lines_x == TRUE) {
 
-                                   n_major <- length(major_x)
+                                   n_major <- length(x_ticks)
 
-                                   circlize::circos.segments(major_x,
+                                   circlize::circos.segments(x_ticks,
                                                              rep(ymin, n_major),
-                                                             major_x,
+                                                             x_ticks,
                                                              rep(ymax, n_major),
                                                              col = "grey50",
                                                              lty = 1)
@@ -491,8 +501,8 @@ draw_circos_track <- function(track,
                                                              major_y,
                                                              rep(xmax, n_major),
                                                              major_y,
-                                                             col = "grey50",
-                                                             lty = 1)
+                                                             col = "grey70",
+                                                             lty = 3)
 
                                }
 

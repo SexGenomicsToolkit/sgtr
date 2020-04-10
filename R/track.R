@@ -92,8 +92,10 @@ track <- function(metrics,
 #' column name in the input data frame (i.e. the output of the
 #' \code{\link{load_genome_metrics}} function).
 #'
-#' @param colors Colors, can be a string (e.g. "grey20"), a vector of strings
-#' (e.g. c("blue", "yellow")), or a color scale object <TBD>.
+#' @param colors Either a single color (e.g. "grey20") which will be
+#' applied to all values, a vector of colors (e.g. c("blue", "yellow")) which
+#' will be alternatingly applied to linkage groups / chromosomes, or a function
+#' returning a color for a given value.
 #'
 #' @param point_size Point size for plots of type "points", a float.
 #'
@@ -172,7 +174,7 @@ single_metric_track <- function(metric,
 
 
 
-#' @title Create a track object with a single metric
+#' @title Create a track object with multiple metrics
 #'
 #' @description Simplified interface to generate a track representing multiple
 #' metric.s All parameters have default values as NA, meaning their value
@@ -185,9 +187,10 @@ single_metric_track <- function(metric,
 #' @param metric_labels Vector of metric labels, will be used in plot legends.
 #' If NA, metric names will be used (default: NA).
 #'
-#' @param colors Colors, can be a string (e.g. "grey20") and will be applied to
-#' all metrics, a vector of strings of length equal to the number of metrics
-#'  (e.g. c("blue", "yellow") for two metricfs), or a color scale object <TBD>.
+#' @param colors Either a single color (e.g. "grey20") which will be
+#' applied to all values, a vector of colors (e.g. c("blue", "yellow")) which
+#' will be alternatingly applied to linkage groups / chromosomes, or a function
+#' returning a color for a given value.
 #'
 #' @param point_size Point size for plots of type "points", can be a single
 #' float value (e.g. 0.5) and will be applied to all metrics, or a vector of
@@ -301,8 +304,8 @@ multi_metrics_track <- function(metrics,
 #' @param label Metric label, will be used in plot legends. If NA, the metric
 #' name will be used (default: NA).
 #'
-#' @param colors Colors, can be a string (e.g. "grey20"), a vector of strings
-#' (e.g. c("blue", "yellow"), or a color scale object <TBD> (default: "grey60").
+#' @param colors Colors, either be a string (e.g. "grey20") or a vector of
+#' strings (e.g. c("blue", "yellow") (default: "grey60").
 #'
 #' @param point_size Point size for plots of type "points", a float
 #' (default: 0.5).
@@ -345,7 +348,7 @@ metric <- function(metric,
 #' @description Wrapper around several track value assignment functions to
 #' assign default values and generate track data.
 #'
-#' @param track A track object generated with the \code{\link{track}} function)
+#' @param track A track object generated with the \code{\link{track}} function).
 #'
 #' @param defaults A named list with default values for all properties.
 #'
@@ -464,48 +467,61 @@ create_track_data <- function(track, data, region = NA) {
     }
 
     # Extract required columns and create color columns
-    track$data <- data[, c("Contig_plot", "Position_plot", metrics)]
+    data <- data[, c("Contig_plot", "Position_plot", metrics)]
 
-    names(track$data) <- c("Contig", "Position", metrics)
+    names(data) <- c("Contig", "Position", metrics)
 
     # Combine data for multiple metrics
-    track$data <- reshape2::melt(track$data, measure.vars = metrics,
-                                 variable.name="Metric", value.name = "Value")
+    data <- reshape2::melt(data, measure.vars = metrics,
+                           variable.name="Metric", value.name = "Value")
 
     # Assign color to data points
     for (i in 1:length(metrics)) {
 
-        colors <- track$metrics[[i]]$colors
+        metric <- track$metrics[[i]]
 
-        if (length(colors) == 1) {
+        colors <- metric$colors
 
-            track$data$Color[which(track$data$Metric == metrics[i])] <- colors
+        if (is.function(colors)) {
+
+            indices <- which(data$Metric == metric$name)
+            color_values <- metric$colors(data$Value[indices])
+            data$Color[indices] <- color_values
+
+        } else if (length(colors) == 1) {
+
+            # Only one color, apply it to all values in metric
+            data$Color[which(data$Metric == metric$name)] <- colors
 
         } else {
 
+            # Multiple colors, create alternating values for LG / chromosomes
             n_contigs <- length(unique(data$Contig))
-            colors <- stats::setNames(rep(colors, n_contigs)[1:n_contigs],
-                                      unique(data$Contig))
-            track$data$Color <- colors[data$Contig]
+            color_values <- stats::setNames(rep(colors, n_contigs)[1:n_contigs],
+                                            unique(data$Contig))
+            data$Color <- color_values[data$Contig]
 
         }
 
     }
 
     # Sort data by Contig then Position
-    track$data <- track$data[order(track$data$Contig, track$data$Position), ]
+    data <- data[order(data$Contig, data$Position), ]
 
     # Remove row names
-    rownames(track$data) <- c()
+    rownames(data) <- c()
 
+    # Extract region if specified
     if (is.list(region)) {
 
-        track$data <- subset(track$data,
-                             track$data$Contig == region$contig &
-                                 track$data$Position >= region$start &
-                                 track$data$Position <= region$end)
+        data <- subset(data,
+                       data$Contig == region$contig &
+                           data$Position >= region$start &
+                           data$Position <= region$end)
 
     }
+
+    track$data <- data
 
     return(track)
 
@@ -552,7 +568,7 @@ assign_values <- function(metrics, property, values) {
 
     if (n_metrics == 1) {
 
-        if (is.na(metrics[[1]][[property]])) {
+        if (is.na(c(metrics[[1]][[property]])[1])) {
 
             metrics[[1]][[property]] <- values
 

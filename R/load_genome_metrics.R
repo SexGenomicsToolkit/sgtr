@@ -95,6 +95,10 @@ load_genome_metrics <- function(input_file,
                                                        chromosomes,
                                                        sortby = "Contig")
 
+        chromosome_data <- chromosome_data[order(match(chromosome_data$Contig,
+                                                       contig_lengths$Contig),
+                                                 chromosome_data$Position), ]
+
         contig_lengths$Contig <- chromosomes[contig_lengths$Contig]
 
     } else {

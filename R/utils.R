@@ -107,15 +107,14 @@ convert_to_kb <- function(x, n = 0) {
 #' @title Generate x-axis scale
 #'
 #' @description Generate an x-axis scale with a given number of ticks,
-#' automatically converting genomic positions to the best unit (Mbp, Kbp ...)
-#' Breaks are chosen to
+#' automatically converting genomic positions to the best unit (Mbp, Kbp ...).
 #'
 #' @param region_info A list with three elements: contig name, region start,
-#' region end (e.g. output of the \code{\link{parse_region}} function)
+#' region end (e.g. output of the \code{\link{parse_region}} function).
 #'
-#' @param n_ticks Number of ticks to include in the scale (default: 10)
+#' @param n_ticks Number of ticks to include in the scale (default: 10).
 #'
-#' @return A ggplot2::scale_x_continuous object encoding the scale
+#' @return A ggplot2::scale_x_continuous object encoding the scale.
 #'
 #' @examples
 #' data <- load_genome_input("psass_window.tsv")
@@ -165,6 +164,97 @@ generate_x_scale <- function(region_info, n_ticks = 10) {
                                                          region_info[[2]]),
                                                      max(tail(scale, 1),
                                                          region_info[[3]])))
+
+    return(output)
+
+}
+
+
+
+
+
+#' @title Generate y-axis scale
+#'
+#' @description Generate an x-axis scale with a given number of ticks,
+#' automatically converting values to the best unit (M., K., ...).
+#'
+#' @param values A vector of values that will be plotted on the y axis.
+#'
+#' @param metric The metric name.
+#'
+#' @param n_ticks Number of ticks to include in the scale (default: 5)
+#'
+#' @param min Minimum value for the scale, or NA to infer from the data
+#' (default: NA)
+#'
+#' @param max Maximum value for the scale, or NA to infer from the data
+#' (default: NA)
+#'
+#' @return A ggplot2::scale_y_continuous object encoding the scale.
+#'
+#' @examples
+#' nice_y_scale <- generate_y_scale(seq(1000000, 10000000, 1000000),
+#'                                  metric = "Reads", n_ticks = 4)
+
+generate_y_scale <- function(values, metric, n_ticks = 5, min = NA, max = NA) {
+
+    start = min(values)
+    end = max(values)
+
+    # Compute the size of an inter-break interval
+    S <- (end - start) / n_ticks
+    if (S <= 0) {
+        stop(paste0("Values range has to be > 0 (range: ", S * n_ticks, ")"))
+    }
+
+    # Find the order of magnitude of an inter-break interval
+    N <- floor(log(S, 10))
+    N10 <- 10 ^ N  # N10 is an 'exponentially-rounded' inter-break interval
+
+    # Generate a scale of n_ticks values within the region
+    # Start, end, and break size values are rounded for nicer display
+    scale <- seq(N10 * floor(start / N10),
+                 N10 * ceiling(end / N10),
+                 N10 * round(S / N10, 1))
+
+    # Adjust the labels based on the size of the values (Mbp or Kbp)
+    if (start < 10 ^ 3 & end < 10 ^ 3) {
+
+        N <- max(0, -N)
+        scale_labels <- format(round(scale, N), nsmall = N)
+        unit <- ""
+
+    } else if (start < 10 ^ 6 & end < 10 ^ 6) {
+
+        N <- max(0, 3 - N)
+        scale_labels <- format(round(scale / 10 ^ 3, N), nsmall = N)
+        unit <- "(K.)"
+
+    } else {
+
+        N <- max(0, 6 - N)
+        scale_labels <- format(round(scale / 10 ^ 6, N), nsmall = N)
+        unit <- "(M.)"
+
+    }
+
+    # Assign values for y-axis limits
+    ymin <- min(scale[1], start)
+    if (ymin < 0) { ymin <- 1.025 * ymin } else { ymin <- 0.976 * ymin }
+    ymax <- max(tail(scale, 1), end)
+    if (ymax < 0) { ymax <- 0.976 * ymax } else { ymax <- 1.025 * ymax }
+    ylim <- c(ymin, ymax)
+
+    # Override min / max if specified in function call
+    if (!is.na(min)) { ylim[1] <- min}
+    if (!is.na(max)) { ylim[2] <- max}
+
+    # Generate the scale object
+    output <- ggplot2::scale_y_continuous(name = paste0(metric, " ", unit),
+                                          expand = c(0.01, 0.01),
+                                          breaks = scale,
+                                          labels = scale_labels,
+                                          limits = ylim)
 
     return(output)
 

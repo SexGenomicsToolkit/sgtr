@@ -170,6 +170,129 @@ radsex_map_circos <- function(input_file,
 
 
 
+#' @title RADSex manhattan plot
+#'
+#' @description Generates a Manhattan plot of radsex "map" results in which
+#' -log10(probability of association with group) is plotted for all markers.
+#'
+#' @param input_file Path to the result of radsex "map".
+#' Format: Contig | Position | Length | Marker ID | Bias | P | Signif
+#' Contig = contig identifier, Position = position on the contig, Length =
+#' length of the contig, <MetricN> = value of metric N at the
+#' corresponding position on the corresponding contig.
+#'
+#' @param chromosomes_file Path to the chromosome names file
+#' (i.e. tab-separated file without header and with columns
+#' <Contig ID> | <Chromosome name>). If NA, all contigs will be considered
+#' unplaced except if detect_chromosomes is set to TRUE, in which case
+#' chromosomes will be detected automatically from contig identifiers
+#' (default: NA).
+#'
+#' @param detect_chromosomes If TRUE, will consider contigs starting with
+#' "LG", "CHR", or "NC" as chromosomes if no chromosomes were specified
+#' (default: TRUE).
+#'
+#' @param unplaced_label Label for unplaced contigs superscaffold
+#' (default: "U.").
+#'
+#' @param output_file Path to an output file for the generated circos plot,
+#' or NA to plot in the current R device (default: NA)
+#'
+#' @param width Plot width when plotting to an output file, in inches
+#' (default: 12).
+#'
+#' @param height Plot height when plotting to an output file in inches,
+#' (default: 6).
+#'
+#' @param res Image resolution when plotting to an output file, in dpi
+#' (default: 300).
+#'
+#' @param colors A single color value for points that will be applied to all
+#' chromosomes or a vector of alternating colors
+#' (default: c("dodgerblue3", "darkgoldenrod2")).
+#'
+#' @param bg_colors A single color value for background that will be applied to
+#' all chromosomes or a vector of alternating colors
+#' (default: c("grey85", "white")).
+#'
+#' @param point_size Point size, a float (default: 1).
+#'
+#' @param x_title Title of the x-axis (default: "Chromosomes").
+#'
+#' @param show_chromosomes_names If TRUE, display chromosome names on the x axis
+#' (default: TRUE).
+#'
+#' @param chromosomes_as_numbers If TRUE, display chromosome numbers instead of
+#' names for readability (default: FALSE).
+#'
+#' @return
+#'
+#' @examples
+
+radsex_map_manhattan <- function(input_file,
+                                 chromosomes_file = NA,
+                                 detect_chromosomes = TRUE,
+                                 unplaced_label = "U.",
+                                 output_file = NA,
+                                 width = 12,
+                                 height = 6,
+                                 res = 300,
+                                 colors = c("dodgerblue3", "darkgoldenrod2"),
+                                 bg_colors = c("grey85", "white"),
+                                 point_size = 0.5,
+                                 x_title = NA,
+                                 show_chromosomes_names = TRUE,
+                                 chromosomes_as_numbers = FALSE) {
+
+    # Load chromosome names (return NA if no chromosomes file)
+    chromosomes <- load_chromosome_names(chromosomes_file)
+
+    # Load genomic metrics data
+    data <- load_genome_metrics(input_file,
+                                chromosomes = chromosomes,
+                                detect_chromosomes = detect_chromosomes,
+                                unplaced_label = unplaced_label)
+
+    # Transform the P-value column into -log10(p-value)
+    data$data$P <- -log(data$data$P, 10)
+
+    # Generate y-axis label for the probability of association with
+    # group track
+    y_label <- expression(bold(paste("-log"[10],
+                                     "(p)"["association with group"])))
+
+    tracks <- list(single_metric_track("P",
+                                       colors = colors,
+                                       point_size = point_size,
+                                       alpha = 1,
+                                       type = "points",
+                                       label = y_label,
+                                       bg_colors = bg_colors,
+                                       ylim = NA,
+                                       major_lines_x = FALSE,
+                                       major_lines_y = TRUE,
+                                       legend_position = "none"))
+
+    # Draw the plot
+    m <- draw_manhattan_plot(data$data,
+                             data$lengths,
+                             tracks,
+                             output_file = output_file,
+                             width = width,
+                             track_height = height,
+                             res = res,
+                             x_title = x_title,
+                             show_chromosomes_names = show_chromosomes_names,
+                             chromosomes_as_numbers = chromosomes_as_numbers)
+
+    return(m)
+
+}
+
+
+
+
+
 #' @title RADSex region plot
 #'
 #' @description Generates a linear plot of radsex "map" results for a given

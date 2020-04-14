@@ -22,7 +22,7 @@
 #' (default: 8).
 #'
 #' @param height Plot height when plotting to an output file, in inches
-#' in inches (default: 7).
+#' (default: 7).
 #'
 #' @param res Image resolution when plotting to an output file, in dpi
 #' (default: 300).
@@ -118,7 +118,7 @@ radsex_distrib <- function(input_file,
 #' (default: 12).
 #'
 #' @param height Plot height when plotting to an output file, in inches
-#' in inches (default: 4).
+#' (default: 4).
 #'
 #' @param res Image resolution when plotting to an output file, in dpi
 #' (default: 300).
@@ -312,7 +312,7 @@ draw_distrib <- function(data,
     }
 
     # Output to file if specified or print in current R device otherwise
-    if (!is.null(output_file)) {
+    if (!is.na(output_file)) {
 
         ggplot2::ggsave(output_file,
                         plot = tile_plot,

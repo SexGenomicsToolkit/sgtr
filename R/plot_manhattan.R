@@ -469,7 +469,15 @@ draw_manhattan_track <- function(track,
 
         manhattan_plot <- manhattan_plot +
             ggplot2::theme(axis.title.x = ggplot2::element_blank(),
-                           axis.text.x = ggplot2::element_blank())
+                           axis.text.x = ggplot2::element_blank(),
+                           axis.ticks.x = ggplot2::element_blank())
+
+    }
+
+    if (is.na(x_title)) {
+
+        manhattan_plot <- manhattan_plot +
+            ggplot2::theme(axis.title.x = ggplot2::element_blank())
 
     }
 

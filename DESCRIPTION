@@ -1,7 +1,7 @@
 Package: sgtr
 Type: Package
 Title: Visualize population genomics analyses results
-Version: 0.1.0
+Version: 1.0.0
 Author: Romain Feron
 Maintainer: Romain Feron <romain.feron.91@gmail.com>
 Author@R: person("Romain", "Feron", email = "romain.feron.91@gmail.com",

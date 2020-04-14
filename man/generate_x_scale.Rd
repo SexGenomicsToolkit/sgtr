@@ -8,17 +8,16 @@ generate_x_scale(region_info, n_ticks = 10)
 }
 \arguments{
 \item{region_info}{A list with three elements: contig name, region start,
-region end (e.g. output of the \code{\link{parse_region}} function)}
+region end (e.g. output of the \code{\link{parse_region}} function).}
 
-\item{n_ticks}{Number of ticks to include in the scale (default: 10)}
+\item{n_ticks}{Number of ticks to include in the scale (default: 10).}
 }
 \value{
-A ggplot2::scale_x_continuous object encoding the scale
+A ggplot2::scale_x_continuous object encoding the scale.
 }
 \description{
 Generate an x-axis scale with a given number of ticks,
-automatically converting genomic positions to the best unit (Mbp, Kbp ...)
-Breaks are chosen to
+automatically converting genomic positions to the best unit (Mbp, Kbp ...).
 }
 \examples{
 data <- load_genome_input("psass_window.tsv")

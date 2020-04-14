@@ -5,26 +5,30 @@
 \title{Plot genome metrics in a circular layout}
 \usage{
 plot_circos(
-  input_file_path,
+  input_file,
   tracks,
-  chromosomes_file_path = NULL,
+  chromosomes_file = NA,
   detect_chromosomes = TRUE,
-  unplaced_label = "Unplaced",
-  highlight = NULL,
-  output_file = NULL,
+  unplaced_label = "U.",
+  highlight = NA,
+  highlight_bg_color = "grey80",
+  output_file = NA,
   width = 2400,
   height = 2400,
   res = 120,
-  default_color = "grey20",
+  default_colors = "grey20",
+  default_bg_colors = "white",
   default_point_size = 0.25,
-  default_ylim = NULL,
-  default_bg_color = "white",
-  default_bg_highlight_color = "grey80",
-  sector_titles_expand = NULL
+  default_ylim = NA,
+  default_alpha = 1,
+  default_type = "points",
+  default_major_lines_y = TRUE,
+  default_major_lines_x = FALSE,
+  sector_titles_expand = NA
 )
 }
 \arguments{
-\item{input_file_path}{Path to a genome metrics input file (e.g. result of
+\item{input_file}{Path to a genome metrics input file (e.g. result of
 PSASS or RADSex).
 Format: Contig | Position | Length | <Metric1> | <Metric2> ... with
 Contig = contig identifier, Position = position on the contig, Length =
@@ -32,29 +36,32 @@ length of the contig, <MetricN> = value of metric N (e.g. Fst) at the
 corresponding position on the corresponding contig.}
 
 \item{tracks}{List of track data objects for each track to include in the
-plot. Track data objects for circos plots are generated with the
-\code{\link{circos_track}} function. Tracks can represent one or mutiple
-metrics from the genome metrics input file.}
+plot. Track data objects are generated with the \code{\link{track}},
+\code{\link{single_metric_track}}, or \code{\link{multi_metrics_track}}
+functions.}
 
-\item{chromosomes_file_path}{Path to the chromosome names file
+\item{chromosomes_file}{Path to the chromosome names file
 (i.e. tab-separated file without header and with columns
-<Contig ID> | <Chromosome name>). If NULL, all contigs will be considered
+<Contig ID> | <Chromosome name>). If NA, all contigs will be considered
 unplaced except if detect_chromosomes is set to TRUE, in which case
 chromosomes will be detected automatically from contig identifiers
-(default: NULL)}
+(default: NA).}
 
 \item{detect_chromosomes}{If TRUE, will consider contigs starting with
 "LG", "CHR", or "NC" as chromosomes if no chromosomes were specified
-(default: TRUE)}
+(default: TRUE).}
 
 \item{unplaced_label}{Label for unplaced contigs superscaffold
-(default: "Unplaced")}
+(default: "Unplaced").}
 
 \item{highlight}{Vector containing the names or identifiers of contigs or
-chromosomes to highlight in the circos plot (default NULL)}
+chromosomes to highlight in the circos plot (default NA).}
+
+\item{highlight_bg_color}{Background color for highlighted sectors
+(default: "grey80").}
 
 \item{output_file}{Path to an output file for the generated circos plot,
-or NULL to plot in the current R device (default: NULL)}
+or NA to plot in the current R device (default: NA)}
 
 \item{width}{Plot width when plotting to an output file, in pixel
 (default: 2400)}
@@ -65,23 +72,32 @@ or NULL to plot in the current R device (default: NULL)}
 \item{res}{Image resolution when plotting to an output file, in ppi
 (default: 120)}
 
-\item{default_color}{Default color for a track when not specified
-in track data (default: "grey20")}
+\item{default_colors}{Default colors when not specified in track data
+(default: "grey20").}
 
-\item{default_point_size}{Default point size for a track when not specified
-in track data (default: 0.25)}
+\item{default_bg_colors}{Default background colors for standard sectors
+when not specified in track data (default: "white").}
 
-\item{default_ylim}{Default y-axis limits for a track when not specified
-in track data (default: NULL, i.e. infer from data)}
+\item{default_point_size}{Default point size when not specified in track data
+(default: 0.25).}
 
-\item{default_bg_color}{Default background color for standard sectors
-in the track when not specified in track data (default: "white")}
+\item{default_ylim}{Default y-axis limits when not specified in track data
+(default: NA, i.e. infer from data).}
 
-\item{default_bg_highlight_color}{Default background color for highlighted
-sectors in the track when not specified in track data (default: "grey80")}
+\item{default_alpha}{Default alpha value when not specified in track data
+(default: 1).}
+
+\item{default_type}{Default plot type when not specified in track data,
+either "ribbon" or "points" (default: "points").}
+
+\item{default_major_lines_y}{Default value for drawing major lines on the
+y axis. If TRUE, reference lines will be plotted (default: TRUE).}
+
+\item{default_major_lines_x}{Default value for drawing major lines on the
+x axis. If TRUE, reference lines will be plotted (default: FALSE).}
 
 \item{sector_titles_expand}{Manually set the space between sector titles
-and x-axis as a multiple of ymax (default: NULL)}
+and x-axis as a multiple of ymax (default: NA)}
 }
 \description{
 Generate a circos plot with multiple tracks from a
@@ -89,13 +105,12 @@ genome metrics file
 }
 \examples{
 plot_circos("data/psass_window.tsv",
-            tracks = list(track("Fst",
-                                label = expression("F"["ST"])),
-                          track(c("Snps_females", "Snps_males"),
-                                label = "Pool-specific SNPs",
-                                color = c("firebrick2", "dodgerblue3")),
-                          track(c("Depth_ratio"),
-                                label = "Depth ratio",
-                                color = "grey50")),
+            tracks = list(single_metric_track("Fst",
+                                              label = expression("F"["ST"])),
+                          multi_metrics_track(c("Snp_females", "Snp_males"),
+                                              label = "Pool-specific SNPs",
+                                              colors = c("firebrick2",
+                                                         "dodgerblue3")),
+            default_type = "ribbon",
             output_file = "circos.png")
 }

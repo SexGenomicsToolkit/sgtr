@@ -1,3 +1,5 @@
+#' @export
+#'
 #' @title Plot genome metrics in a manhattan plot
 #'
 #' @description Generate a manhattan plot with one or multiple tracks from a
@@ -132,6 +134,8 @@ plot_manhattan <- function(input_file, tracks,
 
 
 
+#' @export
+#'
 #' @title Draw genome metrics in a manhattan plot
 #'
 #' @description Generate a manhattan plot with one or multiple tracks from a
@@ -293,48 +297,8 @@ draw_manhattan_plot <- function(data,
 
 
 
-#' @title Assign color to manhattan background data
+#' @export
 #'
-#' @description Assign color to each background rectangle from a backgrounds
-#' data frame for the \code{\link{plot_track_manhattan}} function.
-#'
-#' @param track Track object for the current plot, generated with the
-#' \code{\link{track}} function.
-#'
-#' @param data Data frame with contig, start, and end for each
-#' background rectangle.
-#'
-#' @return A track object containing a backgrounds data frame with columns:
-#' contig | start | end | color.
-#'
-#' @examples
-#' track <- single_metric_track("Fst")
-#' background_data <- data.frame(contig = c("Chr1", "Chr2"),
-#'                               start = c(0, 1000)
-#'                               end = c(999, 2635))
-#' background_data <- manhattan_bg_colors(track, background_data)
-
-manhattan_bg_colors <- function(track, data) {
-
-    n_contigs <- nrow(data)
-
-    # Create palette of alternating background colors
-    bg_palette <- setNames(rep(track$bg_colors, n_contigs)[1:n_contigs],
-                           data$contig)
-
-    # Assign color to each background
-    data$color <- bg_palette[data$contig]
-
-    # Store the backgrounds data frame in the track object
-    track$backgrounds <- data
-
-    return(track)
-}
-
-
-
-
-
 #' @title Plot a manhattan track
 #'
 #' @description Plot a single track for a manhattan plot
@@ -496,4 +460,46 @@ draw_manhattan_track <- function(track,
 
     return(manhattan_plot)
 
+}
+
+
+
+
+
+#' @title Assign color to manhattan background data
+#'
+#' @description Assign color to each background rectangle from a backgrounds
+#' data frame for the \code{\link{plot_track_manhattan}} function.
+#'
+#' @param track Track object for the current plot, generated with the
+#' \code{\link{track}} function.
+#'
+#' @param data Data frame with contig, start, and end for each
+#' background rectangle.
+#'
+#' @return A track object containing a backgrounds data frame with columns:
+#' contig | start | end | color.
+#'
+#' @examples
+#' track <- single_metric_track("Fst")
+#' background_data <- data.frame(contig = c("Chr1", "Chr2"),
+#'                               start = c(0, 1000)
+#'                               end = c(999, 2635))
+#' background_data <- manhattan_bg_colors(track, background_data)
+
+manhattan_bg_colors <- function(track, data) {
+
+    n_contigs <- nrow(data)
+
+    # Create palette of alternating background colors
+    bg_palette <- setNames(rep(track$bg_colors, n_contigs)[1:n_contigs],
+                           data$contig)
+
+    # Assign color to each background
+    data$color <- bg_palette[data$contig]
+
+    # Store the backgrounds data frame in the track object
+    track$backgrounds <- data
+
+    return(track)
 }

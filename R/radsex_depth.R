@@ -1,3 +1,5 @@
+#' @export
+#'
 #' @title Plot the results of radsex "depth" analysis
 #'
 #' @description Plot any metric computed with radsex "depth", either as a

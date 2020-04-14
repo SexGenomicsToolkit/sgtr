@@ -1,3 +1,5 @@
+#' @export
+#'
 #' @title Plot the results of radsex "distrib" analysis
 #'
 #' @description Plot a distribution of markers between two groups obtained with
@@ -101,6 +103,8 @@ radsex_distrib <- function(input_file,
 
 
 
+#' @export
+#'
 #' @title Draw a tile plot for radsex "distrib" results
 #'
 #' @description Draw a tile plot of the distribution of markers between two

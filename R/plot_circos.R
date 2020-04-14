@@ -1,3 +1,5 @@
+#' @export
+#'
 #' @title Plot genome metrics in a circular layout
 #'
 #' @description Generate a circos plot with multiple tracks from a
@@ -140,6 +142,8 @@ plot_circos <- function(input_file, tracks,
 
 
 
+#' @export
+#'
 #' @title Draw genome metrics in a circular layout
 #'
 #' @description Generate a circos plot with multiple tracks from a
@@ -315,6 +319,8 @@ draw_circos <- function(data,
 
 
 
+#' @export
+#'
 #' @title Plot a circos track
 #'
 #' @description Plot a single track for a circos plot
@@ -605,11 +611,11 @@ open_output_device <- function(output_file, width, height, res) {
 
             if (extension == "pdf") {
 
-                pdf(output_file, width = width, height = height, res = res)
+                pdf(output_file, width = width, height = height)
 
             } else if (extension == "svg") {
 
-                svg(output_file, width = width, height = height, res = res)
+                svg(output_file, width = width, height = height)
 
             } else if (extension == "png") {
 

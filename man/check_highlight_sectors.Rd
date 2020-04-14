@@ -2,14 +2,16 @@
 % Please edit documentation in R/plot_circos.R
 \name{check_highlight_sectors}
 \alias{check_highlight_sectors}
-\title{Check highlight sectors}
+\title{Check highlighted sectors}
 \usage{
 check_highlight_sectors(data, contig_lengths, highlight)
 }
 \arguments{
-\item{data}{Genomic data (e.g. result of PSASS or RADSex loaded with the \code{\link{load_genome_input}} function)}
+\item{data}{Genomic data (e.g. result of PSASS or RADSex loaded
+with the \code{\link{load_genome_input}} function).}
 
-\item{contig_lengths}{Contig lengths from the output of the \code{\link{load_genome_input}} function}
+\item{contig_lengths}{Contig lengths from the output of the
+\code{\link{load_genome_input}} function}
 
 \item{highlight}{Vector of names of sectors to highlight}
 }
@@ -17,11 +19,13 @@ check_highlight_sectors(data, contig_lengths, highlight)
 A clean vector of names for sectors to highlight
 }
 \description{
-Check that sectors to be highlighted exist, allowing both contig names and chromosomes names
+Check that sectors to be highlighted exist,
+allowing both contig names and chromosomes names
 }
 \examples{
 genomic_data <- load_genome_input("psass_window.tsv")
 
-highlight <- check_highlight_sectors(genomic_data$data, genomic_data$lengths, c("Chr01", "NC_002364.1"))
-
+highlight <- check_highlight_sectors(genomic_data$data,
+                                     genomic_data$lengths,
+                                     c("Chr01", "NC_002364.1"))
 }

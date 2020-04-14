@@ -1,3 +1,5 @@
+#' @export
+#'
 #' @title Create a track object
 #'
 #' @description Generate an object storing all properties for a plot track
@@ -82,6 +84,8 @@ track <- function(metrics,
 
 
 
+#' @export
+#'
 #' @title Create a track object with a single metric
 #'
 #' @description Simplified interface to generate a track representing a
@@ -174,6 +178,8 @@ single_metric_track <- function(metric,
 
 
 
+#' @export
+#'
 #' @title Create a track object with multiple metrics
 #'
 #' @description Simplified interface to generate a track representing multiple
@@ -294,6 +300,8 @@ multi_metrics_track <- function(metrics,
 
 
 
+#' @export
+#'
 #' @title Create a metric object
 #'
 #' @description Generate an object storing all properties for a metric
@@ -339,6 +347,7 @@ metric <- function(metric,
     return(metric)
 
 }
+
 
 
 
@@ -561,6 +570,8 @@ create_track_data <- function(track, data, region = NA) {
 #' @return The correct value to assign to the property.
 #'
 #' @examples
+#' track <- single_metric_track("Fst")
+#' assign_value(track$metrics, "alpha", 0.6)
 
 assign_values <- function(metrics, property, values) {
 

@@ -2,74 +2,118 @@
 % Please edit documentation in R/plot_region.R
 \name{draw_region}
 \alias{draw_region}
-\title{Draw region plot}
+\title{Draw genome metrics for a specified genomic region}
 \usage{
 draw_region(
   data,
-  contig.lengths,
+  contig_lengths,
   region,
   tracks,
-  output.file = NULL,
+  chromosomes_file = NA,
+  detect_chromosomes = TRUE,
+  unplaced_label = "U.",
+  output_file = NA,
   width = 12,
-  track.height = 4,
+  track_height = 4,
   res = 300,
-  default.color = "grey20",
-  default.alpha = 1,
-  default.type = "ribbon",
-  default.point.size = 0.5,
-  default.ylim = NULL,
-  default.major.lines.y = TRUE,
-  default.major.lines.x = FALSE,
-  default.legend.position = "right"
+  default_colors = "grey20",
+  default_point_size = 1,
+  default_ylim = NA,
+  default_alpha = 0.6,
+  default_type = "ribbon",
+  default_major_lines_y = TRUE,
+  default_major_lines_x = FALSE,
+  default_legend_position = "right"
 )
 }
 \arguments{
-\item{data}{Genomic data (e.g. result of PSASS or RADSex loaded with the \code{\link{load_genome_input}} function)}
+\item{data}{Genome metrics data frame (e.g. result of PSASS or RADSex loaded
+with the \code{\link{load_genome_input}} function).
+Format: Contig | Position | Length | <Metric1> | <Metric2> ... with
+Contig = contig identifier, Position = position on the contig, Length =
+length of the contig, <MetricN> = value of metric N (e.g. Fst) at the
+corresponding position on the corresponding contig.}
 
-\item{contig.lengths}{Contig lengths from the output of the \code{\link{load_genome_input}} function}
+\item{contig_lengths}{Contig lengths data frame from the output of the
+\code{\link{load_genome_input}} function. Format: <Contig ID> | <Length>}
 
-\item{region}{Region to plot, with syntax "Contig" or "Contig:start-end"}
+\item{region}{Region to plot, defined with the syntax "Contig" or
+"Contig:start-end"}
 
-\item{tracks}{List of tracks to plot. Tracks can be generated with the \code{\link{region_track}} function}
+\item{tracks}{List of track data objects for each track to include in the
+plot. Track data objects for region plots are generated with the
+\code{\link{track}} function. Tracks can represent one or mutiple
+metrics from the genome metrics input file.}
 
-\item{output.file}{Path to an output file for the generated region plot, or NULL to plot in the current R device (default: NULL)}
+\item{chromosomes_file}{Path to the chromosome names file
+(i.e. tab-separated file without header and with columns
+<Contig ID> | <Chromosome name>). If NA, all contigs will be considered
+unplaced except if detect_chromosomes is set to TRUE, in which case
+chromosomes will be detected automatically from contig identifiers
+(default: NA).}
 
-\item{width}{Plot width when plotting to an output file, in inches (default: 12)}
+\item{detect_chromosomes}{If TRUE, will consider contigs starting with
+"LG", "CHR", or "NC" as chromosomes if no chromosomes were specified
+(default: TRUE).}
 
-\item{track.height}{Height of a single track when plotting to an output file, in inches (default: 4)}
+\item{unplaced_label}{Label for unplaced contigs superscaffold
+(default: "U.").}
 
-\item{res}{Image resolution when plotting to an output file, in dpi (default: 300)}
+\item{output_file}{Path to an output file for the generated manhattan plot,
+or NA to plot in the current R device (default: NA).}
 
-\item{default.color}{Default color for a track when not specified in track data (default: "grey20")}
+\item{width}{Plot width when plotting to an output file, in inches
+(default: 12).}
 
-\item{default.alpha}{Default alpha value for a track when not specified in track data (default: 1)}
+\item{track_height}{Height of a single track when plotting to an output file,
+in inches (default: 4).}
 
-\item{default.type}{Default plot type for a track when not specified in track data (default: "ribbon")}
+\item{res}{Image resolution when plotting to an output file, in dpi
+(default: 300).}
 
-\item{default.point.size}{Default point size for a track of type "points" when not specified in track data (default: 0.5)}
+\item{default_colors}{Default colors when not specified in track data
+(default: "grey20").}
 
-\item{default.ylim}{Default y-axis limits for a track when not specified in track data (default: NULL, i.e. infer from data)}
+\item{default_point_size}{Default point size when not specified in track data
+(default: 1).}
 
-\item{default.major.lines.y}{If TRUE, reference lines will be plotted for the y axis if not specified in track data (default: TRUE)}
+\item{default_ylim}{Default y-axis limits when not specified in track data
+(default: NA, i.e. infer from data).}
 
-\item{default.major.lines.x}{If TRUE, reference lines will be plotted for the x axis if not specified in track data (default: FALSE)}
+\item{default_alpha}{Default alpha value when not specified in track data
+(default: 0.6).}
 
-\item{default.legend.position}{Default legend position when not specified in track data (default: "none")}
+\item{default_type}{Default plot type when not specified in track data,
+either "ribbon" or "points" (default: "ribbon").}
+
+\item{default_major_lines_y}{Default value for drawing major lines on the
+y axis. If TRUE, reference lines will be plotted (default: TRUE).}
+
+\item{default_major_lines_x}{Default value for drawing major lines on the
+x axis. If TRUE, reference lines will be plotted (default: FALSE).}
+
+\item{default_legend_position}{Default value for position of the legend,
+directly passed to "legend.position" in \code{\link{ggplot2::theme}}
+(default: "right").}
 }
 \value{
-Combined plot data (ggplot object)
+
 }
 \description{
-Generate a linear plot with multiple tracks for a specified genomic region
+Generate a linear plot for a specified genomic region with one
+or multiple tracks from a genome metrics data frame and a contig lengths
+vector
 }
 \examples{
-# Plotting an FST track and a combined pool-specific SNPs track
-# for the first 3Mb of chromosome 1 to the default R device
-
-genomic_data <- load_genome_input("psass_window.tsv")
-
-draw_region(genomic_data$data, genomic_data$lengths, "Chr01:0-3000000",
-            tracks = list(region_track("Fst", label = expression("F"["ST"])),
-                          region_track(c("Snps_females", "Snps_males"), label = "Pool-specific SNPs", color = c("firebrick2", "dodgerblue3"), alpha=0.6)))
-
+metrics <- load_genome_metrics("psass_window.tsv")
+region_plot <- draw_region(metrics$data,
+                           metrics$lengths,
+                           "Chr24:0-6000000",
+                           tracks = list(single_metric_track("Fst",
+                                                             label = expression("F"["ST"])),
+                                         multi_metrics_track(c("Snp_females", "Snp_males"),
+                                                             label = "Pool-specific SNPs",
+                                                             colors = c("firebrick2",
+                                                                        "dodgerblue3"))),
+                           output_file = "region_plot.png")
 }

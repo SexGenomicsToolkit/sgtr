@@ -1,3 +1,5 @@
+#' @export
+#'
 #' @title Load chromosome names
 #'
 #' @description Loads chromosome names from a tabulated file
@@ -10,7 +12,6 @@
 #'
 #' @examples
 #' chromosomes <- load_chromosome_names("chromosomes_names.tsv")
-#'
 
 load_chromosome_names <- function(input_file) {
 
@@ -31,6 +32,8 @@ load_chromosome_names <- function(input_file) {
 
 
 
+#' @export
+#'
 #' @title Load a genome metrics data file
 #'
 #' @description Loads a file containing metric values along a genome.

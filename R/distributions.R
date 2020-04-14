@@ -1,3 +1,5 @@
+#' @export
+#'
 #' @title Draw a boxplot for a metric
 #'
 #' @description Draw a boxplot of the distribution of a metric for each group
@@ -203,6 +205,8 @@ draw_boxplot <- function(data,
 
 
 
+#' @export
+#'
 #' @title Draw a barplot for a metric
 #'
 #' @description Draw a barplot of the value of a metric for each Sample
@@ -249,7 +253,7 @@ draw_boxplot <- function(data,
 #'
 #' @examples
 #' data <- load_table("depth.tsv")
-#' data <- data[, c("Sample, "Group", "Markers")]
+#' data <- data[, c("Sample", "Group", "Markers")]
 #' markers_plot <- draw_barplot(data,
 #'                              group_labels = c("Males", "Females"),
 #'                              group_colors = c("blue", "red"),
@@ -400,6 +404,8 @@ draw_barplot <- function(data,
 
 
 
+#' @export
+#'
 #' @title Draw density for a metric
 #'
 #' @description Draw a density plot for a vector of values.

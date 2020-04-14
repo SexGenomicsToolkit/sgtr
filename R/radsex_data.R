@@ -1,3 +1,5 @@
+#' @export
+#'
 #' @title Load a marker distribution table
 #'
 #' @description Load a distribution of markers between groups obtained with
@@ -14,10 +16,10 @@
 #' group in the plot axis titles, or NA to use the group names (default: NA).
 #'
 #' @return A list with the following elements:
-#' \item{data} {A data frame with the distribution of markers between groups}
-#' \item{groups} {Vector of group names}
-#' \item{group_labels} {Vector with groups as names and group labels as values}
-#' \item{counts} {Vector with groups as names and individual counts as values}
+#' \item{data}{A data frame with the distribution of markers between groups}
+#' \item{groups}{Vector of group names}
+#' \item{group_labels}{Vector with groups as names and group labels as values}
+#' \item{counts}{Vector with groups as names and individual counts as values}
 #'
 #' @examples
 #' data <- load_marker_distribution("distrib.tsv",
@@ -77,6 +79,8 @@ load_marker_distribution <- function(input_file,
 
 
 
+#' @export
+#'
 #' @title Load a standard table file
 #'
 #' @description Loads a tabulated file with readr
@@ -105,6 +109,8 @@ load_marker_depths <- function(input_file) {
 
 
 
+#' @export
+#'
 #' @title Load group info
 #'
 #' @description Load group information from a popmap file.
@@ -119,10 +125,10 @@ load_marker_depths <- function(input_file) {
 #' group in the plot axis titles, or NA to use the group names (default: NA).
 #'
 #' @return A list with the following elements:
-#' \item{individual_groups} {Vector with individuals as names and groups as values}
-#' \item{groups} {Vector of group names}
-#' \item{group_labels} {Vector with groups as names and group labels as values}
-#' \item{counts} {Vector with groups as names and individual counts as values}
+#' \item{individual_groups}{Vector with individuals as names and groups as values}
+#' \item{groups}{Vector of group names}
+#' \item{group_labels}{Vector with groups as names and group labels as values}
+#' \item{counts}{Vector with groups as names and individual counts as values}
 #'
 #' @examples
 #' popmap <- load_group_info("popmap.tsv",
@@ -166,6 +172,8 @@ load_group_info <- function(input_file,
 
 
 
+#' @export
+#'
 #' @title Load a standard table file
 #'
 #' @description Loads a tabulated file with readr

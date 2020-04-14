@@ -1,3 +1,5 @@
+#' @export
+#'
 #' @title Plot the results of radsex "freq" analysis
 #'
 #' @description Plot any metric computed with radsex "freq", either as a single

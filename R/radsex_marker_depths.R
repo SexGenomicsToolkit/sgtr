@@ -1,3 +1,5 @@
+#' @export
+#'
 #' @title Plot the results of radsex "subset", "signif", or "process"
 #'
 #' @description Plot a heatmap of individual depths for a subset of markers from
@@ -151,6 +153,8 @@ radsex_marker_depths <- function(input_file,
 
 
 
+#' @export
+#'
 #' @title RADSex marker depths plot
 #'
 #' @description Draw a heatmap of individual depths for a subset of markers from
@@ -486,11 +490,11 @@ draw_marker_depths <- function(data,
 #' and "centroid" (= UPGMC) (default: "ward.D").
 #'
 #' @return A list with the following elements:
-#' \item{data} {A data frame of marker depths with individuals and markers
+#' \item{data}{A data frame of marker depths with individuals and markers
 #' ordered based on the clustering results}
-#' \item{individuals} {Individuals clustering results}
-#' \item{markers} {Markers clustering results}
-#' \item{distribution} {Distribution of depth values}
+#' \item{individuals}{Individuals clustering results}
+#' \item{markers}{Markers clustering results}
+#' \item{distribution}{Distribution of depth values}
 #'
 #' @examples
 #' clustering_data <- cluster_marker_depths(data,

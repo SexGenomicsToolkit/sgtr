@@ -1,3 +1,5 @@
+#' @export
+#'
 #' @title RADSex circos plot
 #'
 #' @description Generates a circular plot of radsex "map" results in which each
@@ -24,7 +26,7 @@
 #' (default: TRUE).
 #'
 #' @param unplaced_label Label for unplaced contigs superscaffold
-#' (default: "Unplaced").
+#' (default: "U.").
 #'
 #' @param output_file Path to an output file for the generated circos plot,
 #' or NA to plot in the current R device (default: NA)
@@ -60,14 +62,14 @@
 #' @param sector_titles_expand Manually set the space between sector titles
 #' and x-axis as a multiple of ymax (default: NA).
 #'
-#' @return
-#'
 #' @examples
+#' radsex_map_circos("radsex_map.tsv",
+#'                   chromosomes_file = "chromosomes.tsv")
 
 radsex_map_circos <- function(input_file,
                               chromosomes_file = NA,
                               detect_chromosomes = TRUE,
-                              unplaced_label = "Unplaced",
+                              unplaced_label = "U.",
                               output_file = NA,
                               width = 2200,
                               height = 2200,
@@ -151,18 +153,16 @@ radsex_map_circos <- function(input_file,
     }
 
     # Draw the plot
-    p <- draw_circos(data$data,
-                     data$lengths,
-                     tracks,
-                     highlight = highlight,
-                     highlight_bg_color = highlight_bg_color,
-                     output_file = output_file,
-                     width = width,
-                     height = height,
-                     res = res,
-                     sector_titles_expand = sector_titles_expand)
-
-    return(p)
+    draw_circos(data$data,
+                data$lengths,
+                tracks,
+                highlight = highlight,
+                highlight_bg_color = highlight_bg_color,
+                output_file = output_file,
+                width = width,
+                height = height,
+                res = res,
+                sector_titles_expand = sector_titles_expand)
 
 }
 
@@ -170,6 +170,8 @@ radsex_map_circos <- function(input_file,
 
 
 
+#' @export
+#'
 #' @title RADSex manhattan plot
 #'
 #' @description Generates a Manhattan plot of radsex "map" results in which
@@ -225,9 +227,13 @@ radsex_map_circos <- function(input_file,
 #' @param chromosomes_as_numbers If TRUE, display chromosome numbers instead of
 #' names for readability (default: FALSE).
 #'
-#' @return
+#' @return A ggplot object for the plot.
 #'
 #' @examples
+#' radsex_map_manhattan("radsex_map.tsv",
+#'                      output_file = "manhattan.svg",
+#'                      colors = c("green", "purple"),
+#'                      chromosomes_as_numbers = TRUE)
 
 radsex_map_manhattan <- function(input_file,
                                  chromosomes_file = NA,
@@ -293,6 +299,8 @@ radsex_map_manhattan <- function(input_file,
 
 
 
+#' @export
+#'
 #' @title RADSex region plot
 #'
 #' @description Generates a linear plot of radsex "map" results for a given
@@ -347,9 +355,12 @@ radsex_map_manhattan <- function(input_file,
 #'
 #' @param alpha Alpha value, a float (default: 1).
 #'
-#' @return
+#' @return A ggplot object for the plot.
 #'
 #' @examples
+#' region_plot <- radsex_map_region("radsex_map.tsv",
+#'                                  region = "Contig0001:1500-3500",
+#'                                  tracks = c("bias"))
 
 radsex_map_region <- function(input_file,
                               region,

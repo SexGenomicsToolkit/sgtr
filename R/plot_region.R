@@ -1,3 +1,5 @@
+#' @export
+#'
 #' @title Plot genome metrics for a specificied genomic region
 #'
 #' @description Generate a linear plot for a specified genomic region with one
@@ -69,7 +71,15 @@
 #' @return
 #'
 #' @examples
-
+#' region_plot <- plot_region("psass_window.tsv",
+#'                            "Chr24:0-6000000",
+#'                            tracks = list(single_metric_track("Fst",
+#'                                                              label = expression("F"["ST"])),
+#'                                          multi_metrics_track(c("Snp_females", "Snp_males"),
+#'                                                              label = "Pool-specific SNPs",
+#'                                                              colors = c("firebrick2",
+#'                                                                         "dodgerblue3"))),
+#'                            output_file = "region_plot.png")
 
 plot_region <- function(input_file,
                         region,
@@ -122,6 +132,8 @@ plot_region <- function(input_file,
 
 
 
+#' @export
+#'
 #' @title Draw genome metrics for a specified genomic region
 #'
 #' @description Generate a linear plot for a specified genomic region with one
@@ -200,6 +212,17 @@ plot_region <- function(input_file,
 #' @return
 #'
 #' @examples
+#' metrics <- load_genome_metrics("psass_window.tsv")
+#' region_plot <- draw_region(metrics$data,
+#'                            metrics$lengths,
+#'                            "Chr24:0-6000000",
+#'                            tracks = list(single_metric_track("Fst",
+#'                                                              label = expression("F"["ST"])),
+#'                                          multi_metrics_track(c("Snp_females", "Snp_males"),
+#'                                                              label = "Pool-specific SNPs",
+#'                                                              colors = c("firebrick2",
+#'                                                                         "dodgerblue3"))),
+#'                            output_file = "region_plot.png")
 
 draw_region <- function(data,
                         contig_lengths,
@@ -284,6 +307,8 @@ draw_region <- function(data,
 
 
 
+#' @export
+#'
 #' @title Plot a region track
 #'
 #' @description Plot a single track for a genomic region
@@ -300,6 +325,11 @@ draw_region <- function(data,
 #' @return A ggplot object for the plot
 #'
 #' @examples
+#' data <- load_genome_metrics("psass_window.tsv")
+#' defaults <- list(colors = "blue", alpha = 0.5)
+#' track <- single_metric_track("SNP_males", label = "Male-specific SNPs")
+#' track <- configure_track(track, defaults, data)
+#' draw_region_track(track, "Chr01", bottom_track=TRUE)
 
 draw_region_track <- function(track, region, bottom_track = FALSE) {
 

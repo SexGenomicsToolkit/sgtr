@@ -208,8 +208,8 @@ draw_distrib <- function(data,
                                       (data$data$Markers > 0))
 
     # Interval for labels on the x and y axis (to avoid crowded axes)
-    x_label_interval <- 5 * round(round(data$counts[group1] / 10) / 5)
-    y_label_interval <- 5 * round(round(data$counts[group2] / 10) / 5)
+    x_label_interval <- round(data$counts[group1] / 5)
+    y_label_interval <- round(data$counts[group2] / 5)
 
     # Generate the base plot
     tile_plot <- ggplot2::ggplot(data$data, ggplot2::aes(x = data$data[[group1]],

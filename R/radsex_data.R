@@ -27,7 +27,7 @@
 #'                                  group_labels = c("France", "Spain"))
 
 load_marker_distribution <- function(input_file,
-                                     groups= NA,
+                                     groups = NA,
                                      group_labels = NA) {
 
     data <- suppressMessages(readr::read_delim(input_file,
@@ -44,7 +44,7 @@ load_marker_distribution <- function(input_file,
     }
 
     # Assign group names if not specified by user
-    if (is.na(c(groups)[1])) { groups <- names(counts) }
+    if (is.na(c(groups)[1])) { groups <- names(data)[1:2] }
 
     # Assign group labels if not specified by the user
     if (is.na(c(group_labels)[1])) { group_labels = groups }

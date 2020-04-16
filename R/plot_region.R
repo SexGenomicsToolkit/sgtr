@@ -255,8 +255,9 @@ draw_region <- function(data,
 
     # Add original contig names to contig lengths so that the user can
     # specify both chromosome names or contig names in region
+    tmp <- unique(data[, c("Contig", "Length")])
     contig_lengths <- c(contig_lengths,
-                        setNames(unique(data$Length), unique(data$Contig)))
+                        setNames(tmp$Length, tmp$Contig))
 
     # Get contig, min, and max from the region string
     region_info <- parse_region(region, contig_lengths)

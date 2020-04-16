@@ -274,7 +274,7 @@ draw_manhattan_plot <- function(data,
     combined <- cowplot::plot_grid(plotlist = plots, ncol = 1, align = "v")
 
     # Output to file if specified or print in current R device otherwise
-    if (!is.null(output_file)) {
+    if (!is.na(output_file)) {
 
         ggplot2::ggsave(output_file,
                         plot = combined,

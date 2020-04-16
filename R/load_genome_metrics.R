@@ -8,14 +8,14 @@
 #' file without header and with columns <Contig ID> | <Chromosome name>).
 #'
 #' @return A named vector with contig identifiers as names and chromosome names
-#' as values, or NULL if the input file path is NULL.
+#' as values, or NA if the input file path is NA.
 #'
 #' @examples
 #' chromosomes <- load_chromosome_names("chromosomes_names.tsv")
 
 load_chromosome_names <- function(input_file) {
 
-    if (is.null(input_file)) return(NULL)
+    if (is.na(input_file)) return(NA)
 
     raw_data <- suppressMessages(readr::read_delim(input_file, "\t",
                                                    escape_double = FALSE,
@@ -45,7 +45,7 @@ load_chromosome_names <- function(input_file) {
 #' @param input_file Path to a genome metrics file (format described above)
 #'
 #' @param chromosomes Named vector of chromosome names from
-#' \code{\link{load_chromosome_names}} (default: NULL)
+#' \code{\link{load_chromosome_names}} (default: NA)
 #'
 #' @param detect_chromosomes If TRUE, will consider contigs starting with
 #' "LG", "CHR", or "NC" as chromosomes if no chromosomes were specified
@@ -63,7 +63,7 @@ load_chromosome_names <- function(input_file) {
 #'                                    chromosomes = chromosomes)
 
 load_genome_metrics <- function(input_file,
-                                chromosomes = NULL,
+                                chromosomes = NA,
                                 detect_chromosomes = TRUE,
                                 unplaced_label = "Unplaced") {
 
@@ -77,13 +77,13 @@ load_genome_metrics <- function(input_file,
     data$Position_plot <- data$Position
 
     # Detect chromosomes automatically if specified
-    if (is.null(chromosomes) & detect_chromosomes) {
+    if (is.na(c(chromosomes)[1]) & detect_chromosomes) {
 
         chromosomes <- detect_chromosomes(data)
 
     }
 
-    if (!is.null(chromosomes)) {
+    if (!is.na(c(chromosomes)[1])) {
 
         # Separate data between chromosomes and unplaced contigs
         chromosome_data <- subset(data, data$Contig %in% names(chromosomes))
@@ -108,7 +108,7 @@ load_genome_metrics <- function(input_file,
 
         # No chromosomes: entire data is unplaced contigs
         unplaced_data <- data
-        chromosome_data <- NULL
+        chromosome_data <- NA
 
     }
 
@@ -142,7 +142,7 @@ load_genome_metrics <- function(input_file,
     }
 
     # Create final data frame
-    if (!is.null(chromosome_data) & nrow(unplaced_data) > 0) {
+    if (!is.na(c(chromosome_data)[1]) & nrow(unplaced_data) > 0) {
 
         data <- rbind(chromosome_data, unplaced_data)
 
@@ -150,7 +150,7 @@ load_genome_metrics <- function(input_file,
                                 data.frame(Contig = unplaced_label,
                                            Length = total_unplaced_length))
 
-    } else if (!is.null(chromosome_data)) {
+    } else if (!is.na(chromosome_data)) {
 
         # Entire dataset is in chromosomes
         data <- chromosome_data
@@ -239,8 +239,8 @@ detect_chromosomes <- function(data) {
 #' Contig | Position | Length | <Metric1> | <Metric2> ...
 #'
 #' @param chromosomes Named vector of chromosome names from
-#' \code{\link{load_chromosome_names}}. If not NULL, only returns lengths for
-#' chromosomes (default: NULL)
+#' \code{\link{load_chromosome_names}}. If not NA, only returns lengths for
+#' chromosomes (default: NA)
 #'
 #' @param sortby Column to sort the data frame by, either "Length" or "Contig"
 #' (default: "Length")
@@ -251,7 +251,7 @@ detect_chromosomes <- function(data) {
 #' @examples
 #' contig_lengths <- get_contig_lengths_from_data(data)
 
-get_contig_lengths_from_data <- function(data, chromosomes = NULL,
+get_contig_lengths_from_data <- function(data, chromosomes = NA,
                                          sortby = "Length") {
 
     contig_lengths <- data.frame(unique(data[, c("Contig", "Length")]))
@@ -274,7 +274,7 @@ get_contig_lengths_from_data <- function(data, chromosomes = NULL,
 
     }
 
-    if (!is.null(chromosomes)) {
+    if (!is.na(c(chromosomes)[1])) {
         contig_lengths <- subset(contig_lengths,
                                  contig_lengths$Contig %in% names(chromosomes))
     }

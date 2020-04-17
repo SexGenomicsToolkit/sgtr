@@ -372,8 +372,8 @@ draw_manhattan_track <- function(track,
         ggplot2::geom_rect(data = backgrounds,
                            ggplot2::aes(xmin = start,
                                         xmax = end,
-                                        ymin = ymin,
-                                        ymax = ymax,
+                                        ymin = track$ylim[1],
+                                        ymax = track$ylim[2],
                                         fill = color),
                            alpha = 0.5) +
         # Data points
@@ -388,7 +388,7 @@ draw_manhattan_track <- function(track,
         ggplot2::scale_fill_manual(values = merged_color_palette) +
         # Generate y-axis
         ggplot2::scale_y_continuous(name = track$label,
-                                    limits = c(ymin, ymax),
+                                    limits = c(track$ylim[1], track$ylim[2]),
                                     expand = c(0, 0)) +
         # Adjust theme elements
         ggplot2::theme(legend.position = "none",

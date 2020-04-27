@@ -4,8 +4,7 @@ library(sgtr)
 setwd("examples/")
 
 # Default distrib plot
-radsex_distrib("radsex/distrib.tsv",
-               output_file = "figures/distrib.png")
+radsex_distrib("radsex/distrib.tsv")
 
 # Distrib plot with specified groups and labels
 radsex_distrib("radsex/distrib.tsv",

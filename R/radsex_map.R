@@ -292,6 +292,20 @@ radsex_map_manhattan <- function(input_file,
                                        major_lines_y = TRUE,
                                        legend_position = "none"))
 
+    if (show_signif_line) {
+
+        s <- as.numeric(data$properties$signif_threshold)
+        n_markers <- as.numeric(data$properties$n_markers)
+        signif_threshold <- -log(s / n_markers, 10)
+        tracks[[1]]$h_lines <- list(h_line(signif_threshold,
+                                           label = paste0("p<", s),
+                                           color = signif_line_color,
+                                           type = 2,
+                                           size = 0.75,
+                                           label_font_size = 5))
+
+    }
+
     # Draw the plot
     m <- draw_manhattan_plot(data$data,
                              data$lengths,
@@ -438,8 +452,24 @@ radsex_map_region <- function(input_file,
                                          major_lines_y = TRUE,
                                          legend_position = "none")
 
+            if (show_signif_line) {
+
+                s <- as.numeric(data$properties$signif_threshold)
+                n_markers <- as.numeric(data$properties$n_markers)
+                signif_threshold <- -log(s / n_markers, 10)
+                track$h_lines <- list(h_line(signif_threshold,
+                                             label = paste0("p<", s),
+                                             color = signif_line_color,
+                                             type = 2,
+                                             size = 0.75,
+                                             label_font_size = 5))
+
+            }
+
             tracks[[track_n]] <- track
             track_n <- track_n + 1
+
+
 
         } else if (defined_tracks[[i]] == "bias") {
 

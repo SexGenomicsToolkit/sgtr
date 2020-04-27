@@ -486,9 +486,9 @@ draw_manhattan_track <- function(track,
                                                                    linetype = l$type,
                                                                    size = l$size)
 
-            xrange <- ggplot2::ggplot_build(g)$layout$panel_scales_x[[1]]$range$range
+            xrange <- ggplot2::ggplot_build(manhattan_plot)$layout$panel_scales_x[[1]]$range$range
             label_x <- l$label_x * (xrange[2] - xrange[1])
-            label_y <- (track$ylim[2] - track$ylim[1]) / 15 + l$y
+            label_y <- (track$ylim[2] - track$ylim[1]) / 20 + l$y
             manhattan_plot <- manhattan_plot + ggplot2::annotate("text",
                                                                  x = label_x,
                                                                  y = label_y,

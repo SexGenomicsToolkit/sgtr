@@ -1,5 +1,7 @@
 library(sgtr)
 
+setwd("examples")
+
 ###################################
 ########## CIRCOS PLOTS ###########
 ###################################
@@ -48,7 +50,14 @@ plot_manhattan("psass/psass_window.tsv",
                              single_metric_track("Snps_females",
                                                  color = c("red", "firebrick3")),
                              single_metric_track("Snps_males",
-                                                 color = c("blue", "dodgerblue3"))),
+                                                 color = c("blue", "dodgerblue3"),
+                                                 h_lines = list(h_line(y = 75,
+                                                                       label = "test",
+                                                                       color = "red",
+                                                                       type = 2)
+                                                                )
+                                                 )
+                             ),
                chromosomes_file = "psass/chromosomes.tsv",
                output_file = "manhattan.png")
 
@@ -74,7 +83,9 @@ manhattan <- plot_manhattan("psass/psass_window.tsv",
 region <- plot_region("psass/psass_window.tsv",
                       "Chr24:0-6000000",
                       tracks = list(single_metric_track("Snps_males",
-                                                        label = "Male-specific SNPs"),
+                                                        label = "Male-specific SNPs",
+                                                        h_lines = list(h_line(y=50,
+                                                                              label = "yo"))),
                                     single_metric_track("Snps_females",
                                                         label = "Female-specific SNPs",
                                                         colors = "purple",

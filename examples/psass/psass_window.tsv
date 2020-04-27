@@ -1,3 +1,4 @@
+#source:psass-window;
 Contig	Position	Length	Snps_females	Snps_males	Fst	Abs_depth_females	Abs_depth_males	Rel_depth_females	Rel_depth_males
 Chr0_RaGOO	0	1158772	0	0	0.0000	153	151	4.02	4.14
 Chr0_RaGOO	25000	1158772	0	0	0.0000	135	128	3.55	3.50

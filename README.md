@@ -1,6 +1,6 @@
 [![GitHub release (latest by date)](https://img.shields.io/github/v/release/SexGenomicsToolkit/sgtr?color=lightorange)](https://github.com/SexGenomicsToolkit/sgtr/releases)
 [![Conda (channel only)](https://img.shields.io/conda/vn/bioconda/r-sgtr?color=lightorange)](https://bioconda.github.io/recipes/r-sgtr/README.html)
-[![DOI](https://zenodo.org/badge/DOI/xxx.svg)](https://doi.org/xxx)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3766090.svg)](https://doi.org/10.5281/zenodo.3766090)
 
 # sgtr
 

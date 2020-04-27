@@ -33,7 +33,7 @@ devtools::install_github("SexGenomicsToolkit/sgtr")
 ### Install from Bioconda
 
 ```bash
-echo "coming soon"
+conda install -c bioconda r-sgtr
 ```
 
 ## Quick start

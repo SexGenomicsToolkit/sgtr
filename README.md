@@ -19,7 +19,7 @@ The package was developed and tested in R version 3.6.3. It's likely to work und
 
 The current version of sgtr implements functions to visualize the results from:
 
-- RADSex 1.0.0
+- RADSex 1.1.0
 - PSASS 3.0.1
 
 ### Install from Github

@@ -31,6 +31,15 @@
 #' "LG", "CHR", or "NC" as chromosomes if no chromosomes were specified
 #' (default: TRUE).
 #'
+#' @param comment_char Character indicating a comment line in the input file
+#' (default: "#").
+#'
+#' @param comment_sep Character separating two fields in a comment line
+#' (default: ";").
+#'
+#' @param comment_internal_sep Character separating property and value in a
+#' field from a comment line (default: ":").
+#'
 #' @param output_file Path to an output file for the generated region plot,
 #' or NA to plot in the current R device (default: NA).
 #'
@@ -86,6 +95,9 @@ plot_region <- function(input_file,
                         tracks,
                         chromosomes_file = NA,
                         detect_chromosomes = TRUE,
+                        comment_char = "#",
+                        comment_sep = ";",
+                        comment_internal_sep = ":",
                         output_file = NA,
                         width = 12,
                         track_height = 4,
@@ -106,7 +118,10 @@ plot_region <- function(input_file,
     # Load genomic metrics data
     data <- load_genome_metrics(input_file,
                                 chromosomes = chromosomes,
-                                detect_chromosomes = detect_chromosomes)
+                                detect_chromosomes = detect_chromosomes,
+                                comment_char = comment_char,
+                                comment_sep = comment_sep,
+                                comment_internal_sep = comment_internal_sep)
     # Draw the plot
     r <- draw_region(data$data,
                      data$lengths,

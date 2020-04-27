@@ -18,7 +18,9 @@ radsex_map_manhattan(
   point_size = 0.5,
   x_title = NA,
   show_chromosomes_names = TRUE,
-  chromosomes_as_numbers = FALSE
+  chromosomes_as_numbers = FALSE,
+  show_signif_line = TRUE,
+  signif_line_color = "red"
 )
 }
 \arguments{
@@ -71,6 +73,11 @@ all chromosomes or a vector of alternating colors
 
 \item{chromosomes_as_numbers}{If TRUE, display chromosome numbers instead of
 names for readability (default: FALSE).}
+
+\item{show_signif_line}{If TRUE, show a horizontal line at the p-value
+threshold for significance with Bonferroni correction (default: TRUE).}
+
+\item{signif_line_color}{Color of the significance line (default: "red").}
 }
 \value{
 A ggplot object for the plot.

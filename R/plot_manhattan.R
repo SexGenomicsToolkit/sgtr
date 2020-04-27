@@ -31,6 +31,15 @@
 #' @param unplaced_label Label for unplaced contigs superscaffold
 #' (default: "Unplaced").
 #'
+#' @param comment_char Character indicating a comment line in the input file
+#' (default: "#").
+#'
+#' @param comment_sep Character separating two fields in a comment line
+#' (default: ";").
+#'
+#' @param comment_internal_sep Character separating property and value in a
+#' field from a comment line (default: ":").#'
+#'
 #' @param output_file Path to an output file for the generated manhattan plot,
 #' or NA to plot in the current R device (default: NA).
 #'
@@ -86,6 +95,9 @@ plot_manhattan <- function(input_file, tracks,
                            chromosomes_file = NA,
                            detect_chromosomes = TRUE,
                            unplaced_label = "U.",
+                           comment_char = "#",
+                           comment_sep = ";",
+                           comment_internal_sep = ":",
                            output_file = NA,
                            width = 12,
                            track_height = 6,
@@ -107,7 +119,10 @@ plot_manhattan <- function(input_file, tracks,
     data <- load_genome_metrics(input_file,
                                 chromosomes = chromosomes,
                                 detect_chromosomes = detect_chromosomes,
-                                unplaced_label = unplaced_label)
+                                unplaced_label = unplaced_label,
+                                comment_char = comment_char,
+                                comment_sep = comment_sep,
+                                comment_internal_sep = comment_internal_sep)
     # Draw the plot
     m <- draw_manhattan_plot(data$data,
                              data$lengths,

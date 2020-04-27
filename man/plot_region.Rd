@@ -10,6 +10,9 @@ plot_region(
   tracks,
   chromosomes_file = NA,
   detect_chromosomes = TRUE,
+  comment_char = "#",
+  comment_sep = ";",
+  comment_internal_sep = ":",
   output_file = NA,
   width = 12,
   track_height = 4,
@@ -50,6 +53,15 @@ chromosomes will be detected automatically from contig identifiers
 \item{detect_chromosomes}{If TRUE, will consider contigs starting with
 "LG", "CHR", or "NC" as chromosomes if no chromosomes were specified
 (default: TRUE).}
+
+\item{comment_char}{Character indicating a comment line in the input file
+(default: "#").}
+
+\item{comment_sep}{Character separating two fields in a comment line
+(default: ";").}
+
+\item{comment_internal_sep}{Character separating property and value in a
+field from a comment line (default: ":").}
 
 \item{output_file}{Path to an output file for the generated region plot,
 or NA to plot in the current R device (default: NA).}

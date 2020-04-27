@@ -30,11 +30,9 @@ load_marker_distribution <- function(input_file,
                                      groups = NA,
                                      group_labels = NA) {
 
-    data <- suppressMessages(readr::read_delim(input_file,
-                                               "\t",
-                                               escape_double = FALSE,
-                                               col_names = TRUE,
-                                               trim_ws = TRUE))
+    data <- load_table(input_file)
+    properties <- data$properties
+    data <- data$data
 
     # Convert Signif to boolean for old versions of readr
     if (!is.logical(data$Signif)) {
@@ -69,6 +67,7 @@ load_marker_distribution <- function(input_file,
     }
 
     return(list(data = data,
+                properties = properties,
                 groups = groups,
                 group_labels = group_labels,
                 counts = counts))
@@ -165,127 +164,5 @@ load_group_info <- function(input_file,
                    counts = counts)
 
     return(output)
-
-}
-
-
-
-
-
-#' @export
-#'
-#' @title Load a standard table file
-#'
-#' @description Loads a tabulated file with readr
-#'
-#' @param input_file Path to a tabulated file
-#'
-#' @return A data frame containing the tabulated file data.
-#'
-#' @examples
-#' data <- load_table("subset.tsv")
-
-load_table <- function(input_file,
-                       get_properties = TRUE,
-                       comment_char = "#",
-                       comment_sep = ";",
-                       comment_internal_sep = ":") {
-
-    if (get_properties) {
-
-        # Read properties from comment lines
-        properties <- read_comments(input_file,
-                                    comment_char = comment_char,
-                                    comment_sep = comment_sep,
-                                    comment_internal_sep = comment_internal_sep)
-
-    } else {
-
-        properties <- list()
-
-    }
-
-
-    # Read input data ignoring the comments
-    data <- suppressMessages(readr::read_delim(input_file,
-                                               "\t",
-                                               comment = comment_char,
-                                               escape_double = FALSE,
-                                               col_names = TRUE,
-                                               trim_ws = TRUE))
-
-    return(list(data = data, properties = properties))
-
-}
-
-
-
-
-
-#' @title Parse comment lines in an input file
-#'
-#' @description Extract and parse comment lines from an input file. Comment
-#' lines are expected to follow the pattern:
-#' <comment_char>property<comment_internal_sep>value<comment_sep>property...
-#' With default values: #property1:value1;property2:value2...
-#'
-#' @param input_file Path to an input file.
-#'
-#' @param comment_char Character indicating a comment line (default: "#").
-#'
-#' @param comment_sep Character separating two fields in a comment line
-#' (default: ";").
-#'
-#' @param comment_internal_sep Character separating property and value in a
-#' field from a comment line (default: ":").
-#'
-#' @return A named list of property values, or an empty list if no property
-#' could be found in the input file.
-#'
-#' @examples
-#' data <- load_table("subset.tsv")
-
-read_comments <- function(input_file,
-                          comment_char = "#",
-                          comment_sep = ";",
-                          comment_internal_sep = ":") {
-
-    input <- file(input_file, "r")
-    properties <- list()
-    comment_lines_count = 0
-
-    while(TRUE) {
-
-        line = readLines(input, 1)
-        if(length(line) == 0 | !(substr(line, 1, 1) == comment_char)){ break }
-        line_len <- nchar(line)
-        comments = strsplit(substr(line, 2, line_len), comment_sep)
-
-        for (i in 1:length(comments[[1]])) {
-
-            tmp <- strsplit(comments[[1]][i], comment_internal_sep)
-            properties[[tmp[[1]][1]]] <- tmp[[1]][2]
-
-        }
-
-        comment_lines_count = comment_lines_count + 1
-
-    }
-
-    close(input)
-
-    if (comment_lines_count == 0) {
-
-        warning(paste0("Did not find any comment lines in input file \"",
-                       input_file, "\"."))
-
-    } else if (length(properties) == 0) {
-
-        warning(paste0("Found comment lines but could not get any properties",
-                       "in input file \"", input_file, "\"."))
-
-    }
-
-    return(properties)
 
 }

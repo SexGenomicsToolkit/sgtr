@@ -91,7 +91,10 @@ radsex_map_circos <- function(input_file,
     data <- load_genome_metrics(input_file,
                                 chromosomes = chromosomes,
                                 detect_chromosomes = detect_chromosomes,
-                                unplaced_label = unplaced_label)
+                                unplaced_label = unplaced_label,
+                                comment_char = "#",
+                                comment_sep = ";",
+                                comment_internal_sep = "#")
 
     defined_tracks <- tracks
     tracks <- list()
@@ -227,6 +230,11 @@ radsex_map_circos <- function(input_file,
 #' @param chromosomes_as_numbers If TRUE, display chromosome numbers instead of
 #' names for readability (default: FALSE).
 #'
+#' @param show_signif_line If TRUE, show a horizontal line at the p-value
+#' threshold for significance with Bonferroni correction (default: TRUE).
+#'
+#' @param signif_line_color Color of the significance line (default: "red").
+#'
 #' @return A ggplot object for the plot.
 #'
 #' @examples
@@ -248,7 +256,9 @@ radsex_map_manhattan <- function(input_file,
                                  point_size = 0.5,
                                  x_title = NA,
                                  show_chromosomes_names = TRUE,
-                                 chromosomes_as_numbers = FALSE) {
+                                 chromosomes_as_numbers = FALSE,
+                                 show_signif_line = TRUE,
+                                 signif_line_color = "red") {
 
     # Load chromosome names (return NA if no chromosomes file)
     chromosomes <- load_chromosome_names(chromosomes_file)
@@ -257,7 +267,10 @@ radsex_map_manhattan <- function(input_file,
     data <- load_genome_metrics(input_file,
                                 chromosomes = chromosomes,
                                 detect_chromosomes = detect_chromosomes,
-                                unplaced_label = unplaced_label)
+                                unplaced_label = unplaced_label,
+                                comment_char = "#",
+                                comment_sep = ";",
+                                comment_internal_sep = ":")
 
     # Transform the P-value column into -log10(p-value)
     data$data$P <- -log(data$data$P, 10)
@@ -355,6 +368,11 @@ radsex_map_manhattan <- function(input_file,
 #'
 #' @param alpha Alpha value, a float (default: 1).
 #'
+#' @param show_signif_line If TRUE, show a horizontal line at the p-value
+#' threshold for significance with Bonferroni correction (default: TRUE).
+#'
+#' @param signif_line_color Color of the significance line (default: "red").
+#'
 #' @return A ggplot object for the plot.
 #'
 #' @examples
@@ -377,7 +395,9 @@ radsex_map_region <- function(input_file,
                               p_color = "grey40",
                               type = "points",
                               point_size = 1,
-                              alpha = 1) {
+                              alpha = 1,
+                              show_signif_line = TRUE,
+                              signif_line_color = "red") {
 
     # Load chromosome names (return NA if no chromosomes file)
     chromosomes <- load_chromosome_names(chromosomes_file)
@@ -385,7 +405,10 @@ radsex_map_region <- function(input_file,
     # Load genomic metrics data
     data <- load_genome_metrics(input_file,
                                 chromosomes = chromosomes,
-                                detect_chromosomes = detect_chromosomes)
+                                detect_chromosomes = detect_chromosomes,
+                                comment_char = "#",
+                                comment_sep = ";",
+                                comment_internal_sep = ":")
 
     defined_tracks <- tracks
     tracks <- list()

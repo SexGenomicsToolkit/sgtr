@@ -4,15 +4,15 @@
 \alias{get_contig_lengths_from_data}
 \title{Get contig lengths from genome metrics data}
 \usage{
-get_contig_lengths_from_data(data, chromosomes = NULL, sortby = "Length")
+get_contig_lengths_from_data(data, chromosomes = NA, sortby = "Length")
 }
 \arguments{
 \item{data}{Genome metrics data frame: data frame with columns
 Contig | Position | Length | <Metric1> | <Metric2> ...}
 
 \item{chromosomes}{Named vector of chromosome names from
-\code{\link{load_chromosome_names}}. If not NULL, only returns lengths for
-chromosomes (default: NULL)}
+\code{\link{load_chromosome_names}}. If not NA, only returns lengths for
+chromosomes (default: NA)}
 
 \item{sortby}{Column to sort the data frame by, either "Length" or "Contig"
 (default: "Length")}

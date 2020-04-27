@@ -6,16 +6,19 @@
 \usage{
 load_genome_metrics(
   input_file,
-  chromosomes = NULL,
+  chromosomes = NA,
   detect_chromosomes = TRUE,
-  unplaced_label = "Unplaced"
+  unplaced_label = "Unplaced",
+  comment_char = "#",
+  comment_sep = ";",
+  comment_internal_sep = ":"
 )
 }
 \arguments{
 \item{input_file}{Path to a genome metrics file (format described above)}
 
 \item{chromosomes}{Named vector of chromosome names from
-\code{\link{load_chromosome_names}} (default: NULL)}
+\code{\link{load_chromosome_names}} (default: NA)}
 
 \item{detect_chromosomes}{If TRUE, will consider contigs starting with
 "LG", "CHR", or "NC" as chromosomes if no chromosomes were specified
@@ -23,10 +26,19 @@ load_genome_metrics(
 
 \item{unplaced_label}{Label for unplaced contigs superscaffold
 (default: "Unplaced")}
+
+\item{comment_char}{Character indicating a comment line (default: "#").}
+
+\item{comment_sep}{Character separating two fields in a comment line
+(default: ";").}
+
+\item{comment_internal_sep}{Character separating property and value in a
+field from a comment line (default: ":").}
 }
 \value{
-A list with two elements: "data" = parsed genome metrics data,
-"lengths" = lengths of contigs included in the plot
+A list with three elements: "data" = parsed genome metrics data,
+"lengths" = lengths of contigs included in the plot, "properties" = list
+of properties from the comment lines.
 }
 \description{
 Loads a file containing metric values along a genome.

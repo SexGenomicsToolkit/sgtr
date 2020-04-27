@@ -18,7 +18,9 @@ radsex_map_region(
   p_color = "grey40",
   type = "points",
   point_size = 1,
-  alpha = 1
+  alpha = 1,
+  show_signif_line = TRUE,
+  signif_line_color = "red"
 )
 }
 \arguments{
@@ -68,6 +70,11 @@ the bias track, i.e. -1, 0, and 1
 \item{point_size}{Point size, a float (default: 1).}
 
 \item{alpha}{Alpha value, a float (default: 1).}
+
+\item{show_signif_line}{If TRUE, show a horizontal line at the p-value
+threshold for significance with Bonferroni correction (default: TRUE).}
+
+\item{signif_line_color}{Color of the significance line (default: "red").}
 }
 \value{
 A ggplot object for the plot.

@@ -10,6 +10,9 @@ plot_manhattan(
   chromosomes_file = NA,
   detect_chromosomes = TRUE,
   unplaced_label = "U.",
+  comment_char = "#",
+  comment_sep = ";",
+  comment_internal_sep = ":",
   output_file = NA,
   width = 12,
   track_height = 6,
@@ -51,6 +54,15 @@ chromosomes will be detected automatically from contig identifiers
 
 \item{unplaced_label}{Label for unplaced contigs superscaffold
 (default: "Unplaced").}
+
+\item{comment_char}{Character indicating a comment line in the input file
+(default: "#").}
+
+\item{comment_sep}{Character separating two fields in a comment line
+(default: ";").}
+
+\item{comment_internal_sep}{Character separating property and value in a
+field from a comment line (default: ":").#'}
 
 \item{output_file}{Path to an output file for the generated manhattan plot,
 or NA to plot in the current R device (default: NA).}

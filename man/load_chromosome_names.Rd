@@ -12,7 +12,7 @@ file without header and with columns <Contig ID> | <Chromosome name>).}
 }
 \value{
 A named vector with contig identifiers as names and chromosome names
-as values, or NULL if the input file path is NULL.
+as values, or NA if the input file path is NA.
 }
 \description{
 Loads chromosome names from a tabulated file

@@ -245,7 +245,8 @@ draw_manhattan_plot <- function(data,
                      point_size = default_point_size,
                      ylim = default_ylim,
                      alpha = default_alpha,
-                     major_lines_y = default_major_lines_y)
+                     major_lines_y = default_major_lines_y,
+                     h_lines = NA)
 
     # Compute increment to add to each contig (i.e. cumulative length of each
     # contig before this one)
@@ -470,6 +471,32 @@ draw_manhattan_track <- function(track,
         major_lines <-  ggplot2::element_line(linetype=3, color = "grey30")
         manhattan_plot <- manhattan_plot +
             ggplot2::theme(panel.grid.major.y = major_lines)
+
+    }
+
+    # Add horizontal lines if defined
+    if (!is.na(c(track$h_lines)[1])) {
+
+        for (i in 1:length(track$h_lines)) {
+
+            l <- track$h_lines[[i]]
+
+            manhattan_plot <- manhattan_plot + ggplot2::geom_hline(yintercept = l$y,
+                                                                   color = l$color,
+                                                                   linetype = l$type,
+                                                                   size = l$size)
+
+            xrange <- ggplot2::ggplot_build(g)$layout$panel_scales_x[[1]]$range$range
+            label_x <- l$label_x * (xrange[2] - xrange[1])
+            label_y <- (track$ylim[2] - track$ylim[1]) / 15 + l$y
+            manhattan_plot <- manhattan_plot + ggplot2::annotate("text",
+                                                                 x = label_x,
+                                                                 y = label_y,
+                                                                 label = l$label,
+                                                                 color = l$color,
+                                                                 size = l$label_font_size)
+
+        }
 
     }
 

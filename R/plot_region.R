@@ -266,7 +266,8 @@ draw_region <- function(data,
                      type = default_type,
                      major_lines_y = default_major_lines_y,
                      major_lines_x = default_major_lines_x,
-                     legend_position = default_legend_position)
+                     legend_position = default_legend_position,
+                     h_lines = NA)
 
     # Add original contig names to contig lengths so that the user can
     # specify both chromosome names or contig names in region
@@ -484,6 +485,33 @@ draw_region_track <- function(track, region, bottom_track = FALSE) {
 
     if (n_metrics == 1) { g <- g + ggplot2::guides(color = FALSE,
                                                    fill = FALSE) }
+
+    # Add horizontal lines if defined
+    if (!is.na(c(track$h_lines)[1])) {
+
+        for (i in 1:length(track$h_lines)) {
+
+            l <- track$h_lines[[i]]
+
+            g <- g + ggplot2::geom_hline(yintercept = l$y,
+                                         color = l$color,
+                                         linetype = l$type,
+                                         size = l$size)
+
+            xrange <- ggplot2::ggplot_build(g)$layout$panel_scales_x[[1]]$range$range
+            label_x <- l$label_x * (xrange[2] - xrange[1])
+            label_y <- (track$ylim[2] - track$ylim[1]) / 15 + l$y
+            g <- g + ggplot2::annotate("text",
+                                       x = label_x,
+                                       y = label_y,
+                                       label = l$label,
+                                       color = l$color,
+                                       size = l$label_font_size)
+
+        }
+
+    }
+
 
     return(g)
 

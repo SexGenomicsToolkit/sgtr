@@ -262,7 +262,8 @@ draw_circos <- function(data,
                      alpha = default_alpha,
                      type = default_type,
                      major_lines_x = default_major_lines_x,
-                     major_lines_y = default_major_lines_y)
+                     major_lines_y = default_major_lines_y,
+                     h_lines = NA)
 
     # Check that sectors to highlight exist
     highlight <- check_highlight_sectors(data, contig_lengths, highlight)

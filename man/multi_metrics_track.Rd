@@ -16,7 +16,8 @@ multi_metrics_track(
   ylim = NA,
   major_lines_x = NA,
   major_lines_y = NA,
-  legend_position = NA
+  legend_position = NA,
+  h_lines = NA
 )
 }
 \arguments{
@@ -66,6 +67,9 @@ equivalent to panel.grid.major.y in \code{\link{ggplot2::theme}}.}
 \item{legend_position}{Position of the legend, directly passed to
 "legend.position" in \code{\link{ggplot2::theme}} in region plots, not used
 in manhattan and in circos plots.}
+
+\item{h_lines}{List of objects defined with \code{\link{h_line}} adding
+horizontal lines to the track (default: NA).}
 }
 \value{
 A named list with the value of each track property

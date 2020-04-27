@@ -33,6 +33,9 @@
 #' "legend.position" in \code{\link{ggplot2::theme}} for region plots. Not used
 #' in manhattan and in circos plots.
 #'
+#' @param h_lines List of objects defined with \code{\link{h_line}} adding
+#' horizontal lines to the track (default: NA).
+#'
 #' @return A named list with the value of each track property
 #'
 #' @examples
@@ -49,7 +52,8 @@ track <- function(metrics,
                   ylim = NA,
                   major_lines_x = NA,
                   major_lines_y = NA,
-                  legend_position = NA) {
+                  legend_position = NA,
+                  h_lines = NA) {
 
     n_metrics <- length(metrics)
 
@@ -74,7 +78,8 @@ track <- function(metrics,
                   ylim = ylim,
                   major_lines_x = major_lines_x,
                   major_lines_y = major_lines_y,
-                  legend_position = legend_position)
+                  legend_position = legend_position,
+                  h_lines = h_lines)
 
     return(track)
 
@@ -130,6 +135,9 @@ track <- function(metrics,
 #' "legend.position" in \code{\link{ggplot2::theme}} in region plots, not used
 #' in manhattan and in circos plots.
 #'
+#' @param h_lines List of objects defined with \code{\link{h_line}} adding
+#' horizontal lines to the track (default: NA).
+#'
 #' @return A named list with the value of each track property
 #'
 #' @examples
@@ -150,7 +158,8 @@ single_metric_track <- function(metric,
                                 ylim = NA,
                                 major_lines_x = NA,
                                 major_lines_y = NA,
-                                legend_position = NA) {
+                                legend_position = NA,
+                                h_lines = NA) {
 
     # Assign label if necessary
     if (is.na(list(label))) { label <- metric }
@@ -168,7 +177,8 @@ single_metric_track <- function(metric,
                    ylim = ylim,
                    major_lines_x = major_lines_x,
                    major_lines_y = major_lines_y,
-                   legend_position = legend_position)
+                   legend_position = legend_position,
+                   h_lines = h_lines)
 
     return(track)
 
@@ -233,6 +243,9 @@ single_metric_track <- function(metric,
 #' "legend.position" in \code{\link{ggplot2::theme}} in region plots, not used
 #' in manhattan and in circos plots.
 #'
+#' @param h_lines List of objects defined with \code{\link{h_line}} adding
+#' horizontal lines to the track (default: NA).
+#'
 #' @return A named list with the value of each track property
 #'
 #' @examples
@@ -255,7 +268,8 @@ multi_metrics_track <- function(metrics,
                                 ylim = NA,
                                 major_lines_x = NA,
                                 major_lines_y = NA,
-                                legend_position = NA) {
+                                legend_position = NA,
+                                h_lines = NA) {
 
     n_metrics <- length(metrics)
     metric_names <- metrics
@@ -290,7 +304,8 @@ multi_metrics_track <- function(metrics,
                    ylim = ylim,
                    major_lines_x = major_lines_x,
                    major_lines_y = major_lines_y,
-                   legend_position = legend_position)
+                   legend_position = legend_position,
+                   h_lines = h_lines)
 
     return(track)
 
@@ -348,6 +363,55 @@ metric <- function(metric,
 
 }
 
+
+
+
+
+#' @export
+#'
+#' @title Create a h_line object
+#'
+#' @description Generate an object storing all properties for a horizontal
+#' line
+#'
+#' @param y Y-axis coordinate for the line.
+#'
+#' @param label Label to add to the line, or NA for no label (default: NA).
+#'
+#' @param label_x Normalized x coordinate for the label (default: 0.1).
+#'
+#' @param label_font_size Font size for label (default: 7).
+#'
+#' @param color Line color (default: "grey60").
+#'
+#' @param type Line type as defined in R "lty" parameter (default: 1).
+#'
+#' @param size Line thickness (default: 1).
+#'
+#' @return A named list with the value of each line property
+#'
+#' @examples
+#' signif_line <- h_line("p>0.05", color = "red")
+
+h_line <- function(y,
+                   label = NA,
+                   label_x = 0.1,
+                   label_font_size = 7,
+                   color = "grey60",
+                   type = 1,
+                   size = 1) {
+
+    h_line <- list(y = y,
+                   label = label,
+                   label_x = label_x,
+                   label_font_size = label_font_size,
+                   color = color,
+                   type = type,
+                   size = size)
+
+    return(h_line)
+
+}
 
 
 

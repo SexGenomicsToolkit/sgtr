@@ -453,7 +453,7 @@ draw_marker_depths <- function(data,
 
     } else {
 
-        print(combined)
+        plot(combined)
 
     }
 

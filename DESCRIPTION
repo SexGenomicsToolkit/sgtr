@@ -21,4 +21,4 @@ Imports:
     reshape2 (>= 1.4.4)
 URL: https://github.com/SexGenomicsToolkit/sgtr
 BugReports: https://github.com/SexGenomicsToolkit/sgtr/issues
-RoxygenNote: 7.1.0
+RoxygenNote: 7.1.1

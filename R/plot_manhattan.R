@@ -367,12 +367,14 @@ draw_manhattan_track <- function(track,
     if (chromosomes_as_numbers) {
 
         chromosomes_names <- c(seq(1, nrow(backgrounds) - 1), "U")
-        x_labels_angle = 0
+        x_labels_angle <- 0
+        x_labels_offset <- 0.5
 
     } else {
 
         chromosomes_names <- backgrounds$contig
-        x_labels_angle = 90
+        x_labels_angle <- 90
+        x_labels_offset <- 1
 
     }
 
@@ -423,7 +425,7 @@ draw_manhattan_track <- function(track,
                                                            face = "bold",
                                                            vjust = 0.5,
                                                            angle = x_labels_angle,
-                                                           hjust = 1))
+                                                           hjust = x_labels_offset))
 
     if (show_chromosomes_names) {
 

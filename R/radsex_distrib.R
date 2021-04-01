@@ -298,7 +298,7 @@ draw_distrib <- function(data,
     # Adjust plot dimensions if autoscale was set
     if (autoscale) {
 
-        ratio <- data$counts[group1] / data$counts[group2]
+        ratio <- data$counts[group2] / data$counts[group1]
 
         if (is.na(title)) {
 

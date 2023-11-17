@@ -133,7 +133,7 @@ load_genome_metrics <- function(input_file,
         # Order unplaced data by contig length and then by position
         unplaced_lengths <- data.frame(unique(unplaced_data[, c(1, 3)]))
         unplaced_order <- unique(data.frame(unplaced_data[,3]))
-        unplaced_lengths <- unplaced_lengths[order(unplaced_order,
+        unplaced_lengths <- unplaced_lengths[order(unplaced_order[,1],
                                                    decreasing = TRUE),]
         unplaced_data <- unplaced_data[order(match(unplaced_data$Contig,
                                                    unplaced_lengths$Contig),

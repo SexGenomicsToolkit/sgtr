@@ -540,11 +540,11 @@ create_track_data <- function(track, data, region = NA) {
     }
 
     # Extract required columns and create color columns
-    if (!is.na(region) && region$contig %in% unique(data$Contig)) {
+    if (any(!is.na(region)) && region$contig %in% unique(data$Contig)) {
 
         data <- data[, c("Contig", "Position", metrics)]
 
-    } else if ((is.na(region)) | (!is.na(region) && region$contig %in% unique(data$Contig_plot))) {
+    } else if ((any(is.na(region))) | (any(!is.na(region)) && region$contig %in% unique(data$Contig_plot))) {
 
         data <- data[, c("Contig_plot", "Position_plot", metrics)]
 
